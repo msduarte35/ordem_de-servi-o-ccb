@@ -1,0 +1,1545 @@
+/* =========================================================
+   CONTROLE DE MANUTENÇÃO CCB
+   PAINEL CENTRAL + CONGREGAÇÕES + ORDENS DE SERVIÇO
+   BACKUP E RESTAURAÇÃO
+
+   - Menu lateral de congregações.
+   - Indicadores individuais e gerais.
+   - Cadastro de congregações.
+   - Ordens de serviço por congregação.
+   - Visualização, edição e exclusão de OS.
+   - Pesquisa e filtros.
+   - Exportação CSV e impressão.
+   - Backup e restauração.
+   - Preservação dos dados existentes.
+========================================================= */
+
+
+/* =========================================================
+   1. CONFIGURAÇÕES
+========================================================= */
+
+const PREFIXO = "ccb_manutencao_";
+const CHAVE_ANTIGA = "mvp_ordens_servico_v1";
+const CHAVE_IGREJAS = "controleManutencao_igrejas";
+const ID_CENTRAL = "070002";
+
+const VERSAO_BACKUP = "1.0";
+const SISTEMA_BACKUP = "Controle de Manutenção CCB";
+const LIMITE_BACKUP_MB = 20;
+
+const RESPONSAVEIS = [
+    "Ademilson", "Ailson", "Antonio", "Claudiomar",
+    "Daniel", "Egmar", "Elson", "Luciano",
+    "Marcos", "Matias", "Moacir", "Uilson", "Vilmar"
+];
+
+let igrejas = [];
+let igrejaSelecionada = null;
+let ordens = [];
+let backupEmAndamento = false;
+let modoVisualizacao = false;
+
+
+/* =========================================================
+   2. CONGREGAÇÕES INICIAIS
+========================================================= */
+
+const IGREJAS_INICIAIS = [
+    { id: "070002", codigo: "BR 07-0002", nome: "ALEXÂNIA - CENTRO", descricao: "Central" },
+    { id: "070318", codigo: "BR 07-0318", nome: "DISTRITO OLHOS D'ÁGUA", descricao: "Olhos d'Água" },
+    { id: "070329", codigo: "BR 07-0329", nome: "FAZENDA LAJE RIO DO OURO", descricao: "Fazenda Laje Rio do Ouro" },
+    { id: "070401", codigo: "BR 07-0401", nome: "FAZENDA FUNIL", descricao: "Fazenda Funil" },
+    { id: "070125", codigo: "BR 07-0125", nome: "FAZENDA SANTO ANDRÉ", descricao: "Fazenda Santo André" },
+    { id: "070681", codigo: "BR 07-0681", nome: "MORADA DO SOL", descricao: "Morada do Sol" },
+    { id: "070702", codigo: "BR 07-0702", nome: "CONGREGAÇÃO 07", descricao: "Nova congregação 07" },
+    { id: "070703", codigo: "BR 07-0703", nome: "CONGREGAÇÃO 08", descricao: "Nova congregação 08" },
+    { id: "070704", codigo: "BR 07-0704", nome: "CONGREGAÇÃO 09", descricao: "Nova congregação 09" },
+    { id: "070705", codigo: "BR 07-0705", nome: "CONGREGAÇÃO 10", descricao: "Nova congregação 10" },
+    { id: "070706", codigo: "BR 07-0706", nome: "CONGREGAÇÃO 11", descricao: "Nova congregação 11" }
+];
+
+
+/* =========================================================
+   3. ORDENS INICIAIS DA CENTRAL
+
+   Serão utilizadas somente se:
+   - A chave da Central ainda não existir;
+   - Não houver ordens antigas para migrar.
+
+   Nunca substituem dados já existentes.
+========================================================= */
+
+const DADOS_INICIAIS_CENTRAL = [
+    { id: 1, numero: 1, dataAbertura: "2026-08-01", descricao: "SALÃO (CORRIMÃO SOLTO)", responsavel: "ADEMILSON", concluida: "SIM", status: "CONCLUÍDA", dataConclusao: "2026-09-09" },
+    { id: 2, numero: 2, dataAbertura: "2026-08-01", descricao: "BANH. MASC. (LUZES QUEIMADAS)", responsavel: "ANTONIO", concluida: "SIM", status: "CONCLUÍDA", dataConclusao: "2026-08-03" },
+    { id: 3, numero: 3, dataAbertura: "2026-08-01", descricao: "BANH. FEM. - PCD (TORNEIRA ESTRAGADA)", responsavel: "MARCOS", concluida: "SIM", status: "CONCLUÍDA", dataConclusao: "2026-08-04" },
+    { id: 4, numero: 4, dataAbertura: "2026-08-01", descricao: "BANH. MASC. VESTIÁRIO (TOMADA DANDO CURTO)", responsavel: "MATIAS", concluida: "SIM", status: "CONCLUÍDA", dataConclusao: "2026-08-05" },
+    { id: 5, numero: 5, dataAbertura: "2026-08-01", descricao: "SUPORTE DO ÁLCOOL DANIFICADO - ÁTRIO CENTRAL LADO IRMÃOS", responsavel: "LUCIANO", concluida: "SIM", status: "CONCLUÍDA", dataConclusao: "2026-10-05" },
+    { id: 6, numero: 6, dataAbertura: "2026-08-01", descricao: "CANTINA (BANCOS DAS MESAS COM DEFEITO)", responsavel: "MOACIR", concluida: "SIM", status: "CONCLUÍDA", dataConclusao: "2026-10-05" },
+    { id: 7, numero: 7, dataAbertura: "2026-08-01", descricao: "SALÃO (VERIFICAR DISJUNTOR DO PRIMEIRO PIÃO)", responsavel: "MARCOS", concluida: "SIM", status: "CONCLUÍDA", dataConclusao: "2026-09-26" },
+    { id: 8, numero: 8, dataAbertura: "2026-08-01", descricao: "RECOLORIR LETRAS DE FRENTE À IGREJA", responsavel: "ADEMILSON", concluida: "SIM", status: "CONCLUÍDA", dataConclusao: "2026-08-09" },
+    { id: 9, numero: 9, dataAbertura: "2026-08-01", descricao: "PORTA DOS ARMÁRIOS - FUNDO BÍBLICO TRAVANDO", responsavel: "MARCOS", concluida: "NÃO", status: "ATRASADA", dataConclusao: "" },
+    { id: 10, numero: 10, dataAbertura: "2026-08-01", descricao: "FECHADURA DA PORTA DE VIDRO DO ANEXO DANIFICADA", responsavel: "MARCOS", concluida: "SIM", status: "CONCLUÍDA", dataConclusao: "2026-08-11" },
+    { id: 11, numero: 11, dataAbertura: "2026-08-01", descricao: "SUPORTE DE PAPEL DO FRALDÁRIO DANIFICADO", responsavel: "LUCIANO", concluida: "SIM", status: "CONCLUÍDA", dataConclusao: "2026-10-05" },
+    { id: 12, numero: 12, dataAbertura: "2026-08-01", descricao: "SALÃO (VIDRO DA JANELA QUEBRADO - LADO DAS IRMÃS)", responsavel: "MARCOS", concluida: "SIM", status: "CONCLUÍDA", dataConclusao: "2026-08-13" },
+    { id: 13, numero: 13, dataAbertura: "2026-08-29", descricao: "TAPETES DA IGREJA ESTÃO DANIFICADOS", responsavel: "ELSON", concluida: "NÃO", status: "ATRASADA", dataConclusao: "" },
+    { id: 14, numero: 14, dataAbertura: "2026-08-28", descricao: "CÂMERA DO ESTACIONAMENTO IRMÃOS DANIFICADA", responsavel: "MARCOS", concluida: "SIM", status: "CONCLUÍDA", dataConclusao: "2026-10-05" },
+    { id: 15, numero: 15, dataAbertura: "2026-09-26", descricao: "PORTA DO BANHEIRO FEMININO - MAÇANETA DANIFICADA", responsavel: "ADEMILSON", concluida: "NÃO", status: "ATRASADA", dataConclusao: "" },
+    { id: 16, numero: 16, dataAbertura: "2026-09-26", descricao: "SUPORTE DE APOIO DE BÍBLIA DO BANCO LADO DAS IRMÃS ESTÁ SOLTO", responsavel: "MOACIR", concluida: "NÃO", status: "ATRASADA", dataConclusao: "" }
+];
+
+
+/* =========================================================
+   4. FUNÇÕES GERAIS
+========================================================= */
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+function lerJSON(chave, padrao = null) {
+    try {
+        const valor = localStorage.getItem(chave);
+        if (valor === null) return padrao;
+        return JSON.parse(valor);
+    } catch (erro) {
+        console.error("Erro ao ler:", chave, erro);
+        return padrao;
+    }
+}
+
+function salvarJSON(chave, dados) {
+    try {
+        localStorage.setItem(chave, JSON.stringify(dados));
+        return true;
+    } catch (erro) {
+        console.error("Erro ao salvar:", chave, erro);
+        alert("Não foi possível salvar os dados. Verifique o armazenamento do navegador.");
+        return false;
+    }
+}
+
+function escaparHTML(valor) {
+    return String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[caractere]);
+}
+
+function dataHoje() {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoje.getDate()).padStart(2, "0");
+    return `${ano}-${mes}-${dia}`;
+}
+
+function formatarData(data) {
+    if (!data) return "-";
+
+    const partes = String(data).split("-");
+    if (partes.length !== 3) return data;
+
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+function normalizarStatus(status) {
+    const valor = String(status || "ABERTA").trim().toUpperCase();
+
+    const equivalencias = {
+        "CONCLUIDO": "CONCLUÍDA",
+        "CONCLUIDA": "CONCLUÍDA",
+        "CONCLUÍDO": "CONCLUÍDA",
+        "NOK": "N/OK",
+        "NÃO OK": "N/OK"
+    };
+
+    return equivalencias[valor] || valor;
+}
+
+function normalizarOrdem(os, indice = 0) {
+    const ordem = os && typeof os === "object" ? os : {};
+
+    const statusOriginal = normalizarStatus(ordem.status);
+
+    const concluida =
+        String(ordem.concluida || "NÃO").toUpperCase() === "SIM" ||
+        statusOriginal === "CONCLUÍDA";
+
+    return {
+        id: String(ordem.id || `os-${Date.now()}-${indice}`),
+        numero: Number(ordem.numero || ordem.num || indice + 1),
+        dataAbertura: ordem.dataAbertura || ordem.data || dataHoje(),
+        descricao: ordem.descricao || ordem.local || ordem.atividade || "",
+        observacoes: ordem.observacoes || ordem.observacao || "",
+        responsavel: ordem.responsavel || "",
+        status: concluida ? "CONCLUÍDA" : statusOriginal,
+        concluida: concluida ? "SIM" : "NÃO",
+        dataConclusao: ordem.dataConclusao || ""
+    };
+}
+
+function obterListaOrdens(dados) {
+    if (Array.isArray(dados)) return dados;
+    if (dados && Array.isArray(dados.ordens)) return dados.ordens;
+    if (dados && Array.isArray(dados.os)) return dados.os;
+    return [];
+}
+
+
+/* =========================================================
+   5. CONGREGAÇÕES E ARMAZENAMENTO
+========================================================= */
+
+function carregarIgrejas() {
+    const salvas = lerJSON(CHAVE_IGREJAS, []);
+    const listaSalva = Array.isArray(salvas) ? salvas : [];
+
+    const resultado = IGREJAS_INICIAIS.map(igreja => ({ ...igreja }));
+
+    listaSalva.forEach(igreja => {
+        if (!igreja || !igreja.id) return;
+
+        const indice = resultado.findIndex(item =>
+            String(item.id) === String(igreja.id)
+        );
+
+        if (indice >= 0) {
+            resultado[indice] = { ...resultado[indice], ...igreja };
+        } else {
+            resultado.push(igreja);
+        }
+    });
+
+    salvarJSON(CHAVE_IGREJAS, resultado);
+    return resultado;
+}
+
+function salvarIgrejas() {
+    return salvarJSON(CHAVE_IGREJAS, igrejas);
+}
+
+function obterChaveIgreja(id) {
+    return PREFIXO + String(id);
+}
+
+function carregarOrdens(idIgreja) {
+    if (!idIgreja) return [];
+
+    const dados = lerJSON(obterChaveIgreja(idIgreja), []);
+
+    if (Array.isArray(dados)) {
+        return dados.map((ordem, indice) => normalizarOrdem(ordem, indice));
+    }
+
+    // Compatibilidade com backups/formatos antigos.
+    const lista = obterListaOrdens(dados);
+    return lista.map((ordem, indice) => normalizarOrdem(ordem, indice));
+}
+
+function salvarOrdens(id, lista) {
+    return salvarJSON(obterChaveIgreja(id), lista);
+}
+
+
+/* =========================================================
+   6. MIGRAÇÃO DA CENTRAL
+
+   Executada antes de carregar a página individual.
+========================================================= */
+
+function migrarDadosAntigos() {
+    const chaveCentral = obterChaveIgreja(ID_CENTRAL);
+
+    // Se a chave já existe, inclusive vazia, não substitui.
+    if (localStorage.getItem(chaveCentral) !== null) {
+        console.info("Dados da Central já existentes. Preservados.");
+        return;
+    }
+
+    const dadosAntigos = lerJSON(CHAVE_ANTIGA, []);
+    const listaAntiga = obterListaOrdens(dadosAntigos);
+
+    if (listaAntiga.length > 0) {
+        const migradas = listaAntiga.map((os, indice) =>
+            normalizarOrdem(os, indice)
+        );
+
+        if (salvarOrdens(ID_CENTRAL, migradas)) {
+            console.info("Ordens antigas migradas:", migradas.length);
+        }
+
+        return;
+    }
+
+    const iniciais = DADOS_INICIAIS_CENTRAL.map((os, indice) =>
+        normalizarOrdem(os, indice)
+    );
+
+    if (salvarOrdens(ID_CENTRAL, iniciais)) {
+        console.info("Ordens iniciais da Central cadastradas:", iniciais.length);
+    }
+}
+
+
+/* =========================================================
+   7. IDENTIFICAÇÃO DA PÁGINA E DA CONGREGAÇÃO
+========================================================= */
+
+function obterPagina() {
+    return document.body.dataset.page || "";
+}
+
+function obterIgrejaAtual() {
+    const parametros = new URLSearchParams(window.location.search);
+    const id = parametros.get("igreja") || parametros.get("id");
+
+    if (id) {
+        const encontrada = igrejas.find(igreja =>
+            String(igreja.id) === String(id)
+        );
+
+        if (encontrada) return encontrada;
+    }
+
+    // Ao abrir igreja.html sem parâmetro, utiliza a Central.
+    return igrejas.find(igreja =>
+        String(igreja.id) === ID_CENTRAL
+    ) || null;
+}
+
+
+/* =========================================================
+   8. INICIALIZAÇÃO
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", iniciarSistema);
+
+function iniciarSistema() {
+    igrejas = carregarIgrejas();
+
+    // A migração acontece antes da inicialização da página.
+    migrarDadosAntigos();
+
+    const pagina = obterPagina();
+
+    if (pagina === "painel") iniciarPainel();
+    if (pagina === "igreja") iniciarPaginaIgreja();
+
+    console.info("Controle de Manutenção CCB inicializado.");
+}
+
+
+/* =========================================================
+   9. PAINEL CENTRAL
+========================================================= */
+
+function iniciarPainel() {
+    configurarModalIgreja();
+    configurarPesquisaIgreja();
+    configurarBackup();
+    atualizarResumoGeral();
+    renderizarListaIgrejas();
+    renderizarEstadoInicial();
+}
+
+function atualizarResumoGeral() {
+    let totalOS = 0;
+    let concluidas = 0;
+    let pendentes = 0;
+
+    igrejas.forEach(igreja => {
+        const lista = carregarOrdens(igreja.id);
+        totalOS += lista.length;
+
+        lista.forEach(os => {
+            if (os.concluida === "SIM") concluidas++;
+            else pendentes++;
+        });
+    });
+
+    if ($("totalIgrejas")) $("totalIgrejas").textContent = igrejas.length;
+    if ($("totalOSGeral")) $("totalOSGeral").textContent = totalOS;
+    if ($("concluidasGeral")) $("concluidasGeral").textContent = concluidas;
+    if ($("pendentesGeral")) $("pendentesGeral").textContent = pendentes;
+    if ($("totalIgrejasMenu")) $("totalIgrejasMenu").textContent = igrejas.length;
+}
+
+
+/* =========================================================
+   10. MENU LATERAL
+========================================================= */
+
+function renderizarListaIgrejas() {
+    const lista = $("listaIgrejas");
+    if (!lista) return;
+
+    const busca = $("buscaIgreja")
+        ? $("buscaIgreja").value.toLowerCase().trim()
+        : "";
+
+    const filtradas = igrejas.filter(igreja => {
+        const texto = [
+            igreja.nome, igreja.codigo, igreja.descricao, igreja.id
+        ].join(" ").toLowerCase();
+
+        return texto.includes(busca);
+    });
+
+    lista.innerHTML = "";
+
+    if ($("totalIgrejasMenu")) {
+        $("totalIgrejasMenu").textContent = igrejas.length;
+    }
+
+    if (!filtradas.length) {
+        lista.innerHTML = `
+            <div class="sidebar-empty">
+                <strong>Nenhuma congregação encontrada</strong>
+                <span>Tente pesquisar por outro nome ou código.</span>
+            </div>
+        `;
+        return;
+    }
+
+    filtradas.forEach(igreja => {
+        const registros = carregarOrdens(igreja.id);
+        const item = document.createElement("button");
+
+        item.type = "button";
+        item.className = "church-nav-item";
+
+        if (igrejaSelecionada &&
+            String(igrejaSelecionada.id) === String(igreja.id)) {
+            item.classList.add("ativo");
+        }
+
+        item.innerHTML = `
+            <span class="church-nav-icon">⌂</span>
+            <span class="church-nav-text">
+                <strong>${escaparHTML(igreja.nome)}</strong>
+                <small>${escaparHTML(igreja.codigo || igreja.id)}</small>
+            </span>
+            <span class="church-nav-count">${registros.length}</span>
+            <span class="church-nav-arrow">›</span>
+        `;
+
+        item.addEventListener("click", () => selecionarIgreja(igreja.id));
+        lista.appendChild(item);
+    });
+}
+
+function selecionarIgreja(id) {
+    igrejaSelecionada = igrejas.find(igreja =>
+        String(igreja.id) === String(id)
+    );
+
+    if (!igrejaSelecionada) return;
+
+    renderizarListaIgrejas();
+    renderizarDetalhesIgreja();
+}
+
+
+/* =========================================================
+   11. DETALHES DA CONGREGAÇÃO
+========================================================= */
+
+function renderizarDetalhesIgreja() {
+    const detalhes = $("detalhesIgreja");
+    if (!detalhes) return;
+
+    if (!igrejaSelecionada) {
+        renderizarEstadoInicial();
+        return;
+    }
+
+    const registros = carregarOrdens(igrejaSelecionada.id);
+    const total = registros.length;
+
+    const concluidas = registros.filter(os =>
+        os.concluida === "SIM"
+    ).length;
+
+    const pendentes = total - concluidas;
+    const percentual = total > 0
+        ? Math.round((concluidas / total) * 100)
+        : 0;
+
+    detalhes.innerHTML = `
+        <div class="detail-heading">
+            <div class="detail-title-group">
+                <div class="detail-icon">⌂</div>
+                <div>
+                    <p class="eyebrow">CONGREGAÇÃO SELECIONADA</p>
+                    <h3>${escaparHTML(igrejaSelecionada.nome)}</h3>
+                    <p class="muted small">
+                        ${escaparHTML(igrejaSelecionada.codigo || igrejaSelecionada.id)}
+                    </p>
+                </div>
+            </div>
+
+            <a class="btn btn-primary"
+               href="igreja.html?igreja=${encodeURIComponent(igrejaSelecionada.id)}">
+                Abrir ordens de serviço →
+            </a>
+        </div>
+
+        <div class="detail-info-grid">
+            <div class="detail-info-card">
+                <span class="detail-info-icon">⌂</span>
+                <div><small>Congregação</small>
+                <strong>${escaparHTML(igrejaSelecionada.nome)}</strong></div>
+            </div>
+
+            <div class="detail-info-card">
+                <span class="detail-info-icon">#</span>
+                <div><small>Código</small>
+                <strong>${escaparHTML(igrejaSelecionada.codigo || igrejaSelecionada.id)}</strong></div>
+            </div>
+
+            <div class="detail-info-card">
+                <span class="detail-info-icon">i</span>
+                <div><small>Descrição</small>
+                <strong>${escaparHTML(igrejaSelecionada.descricao || "-")}</strong></div>
+            </div>
+        </div>
+
+        <div class="detail-section-title">
+            <div>
+                <h4>Resumo das manutenções</h4>
+                <p class="muted small">Indicadores das ordens de serviço desta congregação.</p>
+            </div>
+            <span class="detail-period">Dados atuais</span>
+        </div>
+
+        <div class="detail-stats">
+            <div class="detail-stat">
+                <span class="detail-stat-symbol blue">▤</span>
+                <div><small>Total de ordens</small><strong>${total}</strong></div>
+            </div>
+
+            <div class="detail-stat">
+                <span class="detail-stat-symbol green">✓</span>
+                <div><small>Concluídas</small><strong>${concluidas}</strong></div>
+            </div>
+
+            <div class="detail-stat">
+                <span class="detail-stat-symbol amber">◷</span>
+                <div><small>Pendentes</small><strong>${pendentes}</strong></div>
+            </div>
+        </div>
+
+        <div class="completion-card">
+            <div class="completion-head">
+                <div>
+                    <strong>Progresso das manutenções</strong>
+                    <small>Percentual de ordens concluídas</small>
+                </div>
+                <span class="completion-percent">${percentual}%</span>
+            </div>
+            <div class="progress-track">
+                <span style="width: ${percentual}%"></span>
+            </div>
+        </div>
+
+        <div class="detail-footer">
+            <span><span class="online-dot"></span> Dados armazenados neste navegador</span>
+            <span>${total} ${total === 1 ? "ordem cadastrada" : "ordens cadastradas"}</span>
+        </div>
+    `;
+}
+
+function renderizarEstadoInicial() {
+    const detalhes = $("detalhesIgreja");
+    if (!detalhes) return;
+
+    detalhes.innerHTML = `
+        <div class="empty-state empty-state-main">
+            <i>⌂</i>
+            <h3>Bem-vindo ao Controle de Manutenção</h3>
+            <p>
+                Selecione uma congregação no menu lateral
+                para visualizar os indicadores e acessar
+                suas ordens de serviço.
+            </p>
+        </div>
+    `;
+}
+
+function configurarPesquisaIgreja() {
+    const busca = $("buscaIgreja");
+    if (busca) busca.addEventListener("input", renderizarListaIgrejas);
+}
+
+
+/* =========================================================
+   12. CADASTRO DE CONGREGAÇÕES
+========================================================= */
+
+function configurarModalIgreja() {
+    [$("btnNovaIgrejaTopo"), $("btnNovaIgreja")]
+        .filter(Boolean)
+        .forEach(botao => botao.addEventListener("click", abrirModalIgreja));
+
+    $("fecharModalIgreja")?.addEventListener("click", fecharModalIgreja);
+    $("cancelarCadastroIgreja")?.addEventListener("click", fecharModalIgreja);
+    $("formIgreja")?.addEventListener("submit", cadastrarIgreja);
+
+    $("modalIgreja")?.addEventListener("click", evento => {
+        if (evento.target === $("modalIgreja")) fecharModalIgreja();
+    });
+}
+
+function abrirModalIgreja() {
+    const modal = $("modalIgreja");
+    if (!modal) return;
+
+    $("formIgreja")?.reset();
+
+    if (typeof modal.showModal === "function") modal.showModal();
+    else modal.setAttribute("open", "");
+}
+
+function fecharModalIgreja() {
+    const modal = $("modalIgreja");
+    if (!modal) return;
+
+    if (typeof modal.close === "function") modal.close();
+    else modal.removeAttribute("open");
+}
+
+function cadastrarIgreja(evento) {
+    evento.preventDefault();
+
+    const nome = $("nomeNovaIgreja")?.value.trim();
+    const codigo = $("codigoNovaIgreja")?.value.trim();
+    const descricao = $("descricaoNovaIgreja")?.value.trim();
+
+    if (!nome || !codigo) {
+        alert("Informe o nome e o código da congregação.");
+        return;
+    }
+
+    const id = codigo.replace(/\D/g, "").padStart(6, "0");
+
+    if (!id || id === "000000") {
+        alert("Informe um código válido.");
+        return;
+    }
+
+    if (igrejas.some(igreja => String(igreja.id) === id)) {
+        alert("Já existe uma congregação cadastrada com esse código.");
+        return;
+    }
+
+    const novaIgreja = {
+        id,
+        nome: nome.toUpperCase(),
+        codigo,
+        descricao: descricao || nome
+    };
+
+    igrejas.push(novaIgreja);
+
+    if (!salvarIgrejas()) {
+        igrejas.pop();
+        return;
+    }
+
+    fecharModalIgreja();
+    atualizarResumoGeral();
+    renderizarListaIgrejas();
+    selecionarIgreja(novaIgreja.id);
+
+    alert("Congregação cadastrada com sucesso!");
+}
+
+
+/* =========================================================
+   13. PÁGINA INDIVIDUAL DA CONGREGAÇÃO
+========================================================= */
+
+function iniciarPaginaIgreja() {
+    igrejaSelecionada = obterIgrejaAtual();
+
+    if (!igrejaSelecionada) {
+        alert("Congregação não encontrada.");
+        window.location.href = "index.html";
+        return;
+    }
+
+    // Carrega novamente os dados da congregação identificada.
+    ordens = carregarOrdens(igrejaSelecionada.id);
+
+    atualizarIdentificacaoIgreja();
+    configurarFormularioOS();
+    configurarFiltrosOS();
+    configurarBotoesOS();
+    atualizarTelaOS();
+}
+
+function atualizarIdentificacaoIgreja() {
+    if ($("nomeIgreja")) {
+        $("nomeIgreja").textContent = igrejaSelecionada.nome;
+    }
+
+    if ($("codigoIgreja")) {
+        $("codigoIgreja").textContent =
+            `${igrejaSelecionada.codigo || igrejaSelecionada.id} • ${igrejaSelecionada.descricao || ""}`;
+    }
+}
+
+
+/* =========================================================
+   14. FORMULÁRIO DE ORDEM DE SERVIÇO
+========================================================= */
+
+function configurarFormularioOS() {
+    const formulario = $("formOS");
+
+    if (!formulario) {
+        console.error("Formulário formOS não encontrado.");
+        return;
+    }
+
+    formulario.addEventListener("submit", salvarOrdemFormulario);
+
+    preencherResponsaveis();
+
+    $("btnNovaOS")?.addEventListener("click", abrirNovaOS);
+    $("fecharModal")?.addEventListener("click", fecharModalOS);
+    $("cancelar")?.addEventListener("click", fecharModalOS);
+
+    $("modalOS")?.addEventListener("click", evento => {
+        if (evento.target === $("modalOS")) fecharModalOS();
+    });
+
+    $("concluida")?.addEventListener("change", atualizarConclusao);
+    $("status")?.addEventListener("change", atualizarStatusConclusao);
+}
+
+function preencherResponsaveis() {
+    const campo = $("responsavel");
+    if (!campo) return;
+
+    const valorAtual = campo.value;
+
+    campo.innerHTML = `
+        <option value="">Selecione o responsável</option>
+        ${RESPONSAVEIS.map(nome => `
+            <option value="${escaparHTML(nome)}">${escaparHTML(nome)}</option>
+        `).join("")}
+    `;
+
+    if (valorAtual) campo.value = valorAtual;
+}
+
+function abrirModalOS() {
+    const modal = $("modalOS");
+    if (!modal) return;
+
+    if (typeof modal.showModal === "function") modal.showModal();
+    else modal.setAttribute("open", "");
+}
+
+function fecharModalOS() {
+    const modal = $("modalOS");
+    if (!modal) return;
+
+    modoVisualizacao = false;
+    habilitarFormularioOS(true);
+
+    if (typeof modal.close === "function") modal.close();
+    else modal.removeAttribute("open");
+}
+
+function habilitarFormularioOS(habilitado) {
+    const formulario = $("formOS");
+    if (!formulario) return;
+
+    formulario.querySelectorAll("input, select, textarea").forEach(campo => {
+        if (campo.type === "hidden") return;
+        campo.disabled = !habilitado;
+    });
+
+    const botaoSalvar = formulario.querySelector('[type="submit"]');
+
+    if (botaoSalvar) {
+        botaoSalvar.hidden = !habilitado;
+    }
+
+    if ($("cancelar")) {
+        $("cancelar").textContent = habilitado ? "Cancelar" : "Fechar";
+    }
+}
+
+function preencherFormularioOS(os) {
+    $("osId").value = os.id;
+    $("numero").value = os.numero;
+    $("dataAbertura").value = os.dataAbertura;
+    $("descricao").value = os.descricao;
+    $("observacoes").value = os.observacoes;
+    $("responsavel").value = os.responsavel;
+    $("status").value = os.status;
+    $("concluida").value = os.concluida;
+    $("dataConclusao").value = os.dataConclusao || "";
+}
+
+function abrirNovaOS() {
+    const formulario = $("formOS");
+    if (!formulario) return;
+
+    modoVisualizacao = false;
+    habilitarFormularioOS(true);
+    formulario.reset();
+
+    $("osId").value = "";
+    $("tituloModal").textContent = "Nova ordem de serviço";
+    $("dataAbertura").value = dataHoje();
+    $("status").value = "ABERTA";
+    $("concluida").value = "NÃO";
+    $("dataConclusao").value = "";
+
+    const numeros = ordens.map(os => Number(os.numero) || 0);
+    $("numero").value = Math.max(0, ...numeros) + 1;
+
+    abrirModalOS();
+}
+
+
+/* =========================================================
+   15. VISUALIZAR ORDEM DE SERVIÇO
+========================================================= */
+
+function visualizarOS(id) {
+    const os = ordens.find(item => String(item.id) === String(id));
+
+    if (!os) {
+        alert("Ordem de serviço não encontrada.");
+        return;
+    }
+
+    modoVisualizacao = true;
+
+    preencherFormularioOS(os);
+
+    $("tituloModal").textContent = `Visualizar OS nº ${os.numero}`;
+
+    // Desabilita os campos para impedir alterações acidentais.
+    habilitarFormularioOS(false);
+
+    abrirModalOS();
+}
+
+
+/* =========================================================
+   16. EDITAR ORDEM DE SERVIÇO
+========================================================= */
+
+function editarOS(id) {
+    const os = ordens.find(item => String(item.id) === String(id));
+
+    if (!os) {
+        alert("Ordem de serviço não encontrada.");
+        return;
+    }
+
+    modoVisualizacao = false;
+    habilitarFormularioOS(true);
+
+    preencherFormularioOS(os);
+
+    $("tituloModal").textContent = "Editar ordem de serviço";
+
+    abrirModalOS();
+}
+
+
+/* =========================================================
+   17. SALVAR ORDEM DE SERVIÇO
+========================================================= */
+
+function salvarOrdemFormulario(evento) {
+    evento.preventDefault();
+
+    if (modoVisualizacao) return;
+
+    const idExistente = $("osId").value;
+    const numero = Number($("numero").value);
+    const dataAbertura = $("dataAbertura").value;
+    const descricao = $("descricao").value.trim();
+    const observacoes = $("observacoes").value.trim();
+    const responsavel = $("responsavel").value;
+
+    let status = normalizarStatus($("status").value);
+    let concluida = $("concluida").value;
+    let dataConclusao = $("dataConclusao").value;
+
+    if (!numero || numero < 1) {
+        alert("Informe um número válido para a OS.");
+        return;
+    }
+
+    if (!dataAbertura) {
+        alert("Informe a data de abertura.");
+        return;
+    }
+
+    if (!descricao) {
+        alert("Informe o local ou a descrição da atividade.");
+        return;
+    }
+
+    if (!responsavel) {
+        alert("Selecione o responsável.");
+        return;
+    }
+
+    const numeroDuplicado = ordens.some(os =>
+        Number(os.numero) === numero &&
+        String(os.id) !== String(idExistente)
+    );
+
+    if (numeroDuplicado) {
+        alert("Já existe uma OS com esse número nesta congregação.");
+        return;
+    }
+
+    if (concluida === "SIM" || status === "CONCLUÍDA") {
+        concluida = "SIM";
+        status = "CONCLUÍDA";
+        if (!dataConclusao) dataConclusao = dataHoje();
+    } else {
+        concluida = "NÃO";
+        dataConclusao = "";
+    }
+
+    const ordem = {
+        id: idExistente ||
+            `os-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        numero,
+        dataAbertura,
+        descricao,
+        observacoes,
+        responsavel,
+        status,
+        concluida,
+        dataConclusao
+    };
+
+    const indice = ordens.findIndex(os =>
+        String(os.id) === String(idExistente)
+    );
+
+    const listaAnterior = [...ordens];
+
+    if (indice >= 0) ordens[indice] = ordem;
+    else ordens.push(ordem);
+
+    if (!salvarOrdens(igrejaSelecionada.id, ordens)) {
+        ordens = listaAnterior;
+        return;
+    }
+
+    fecharModalOS();
+    atualizarTelaOS();
+
+    alert(indice >= 0
+        ? "Ordem de serviço atualizada!"
+        : "Ordem de serviço cadastrada!"
+    );
+}
+
+
+/* =========================================================
+   18. ATUALIZAÇÃO DE CONCLUSÃO
+========================================================= */
+
+function atualizarConclusao() {
+    const concluida = $("concluida");
+    const status = $("status");
+    const data = $("dataConclusao");
+
+    if (!concluida || !status || !data) return;
+
+    if (concluida.value === "SIM") {
+        status.value = "CONCLUÍDA";
+        if (!data.value) data.value = dataHoje();
+    } else {
+        if (status.value === "CONCLUÍDA") status.value = "ABERTA";
+        data.value = "";
+    }
+}
+
+function atualizarStatusConclusao() {
+    const status = $("status");
+    const concluida = $("concluida");
+    const data = $("dataConclusao");
+
+    if (!status || !concluida || !data) return;
+
+    if (status.value === "CONCLUÍDA") {
+        concluida.value = "SIM";
+        if (!data.value) data.value = dataHoje();
+    } else {
+        concluida.value = "NÃO";
+        data.value = "";
+    }
+}
+
+
+/* =========================================================
+   19. EXCLUIR ORDEM DE SERVIÇO
+========================================================= */
+
+function excluirOS(id) {
+    const os = ordens.find(item => String(item.id) === String(id));
+    if (!os) return;
+
+    const confirmar = confirm(
+        `Deseja realmente excluir a OS nº ${os.numero}?\n\nEssa ação não poderá ser desfeita.`
+    );
+
+    if (!confirmar) return;
+
+    const listaAnterior = [...ordens];
+
+    ordens = ordens.filter(item => String(item.id) !== String(id));
+
+    if (!salvarOrdens(igrejaSelecionada.id, ordens)) {
+        ordens = listaAnterior;
+        return;
+    }
+
+    atualizarTelaOS();
+}
+
+
+/* =========================================================
+   20. FILTROS E PESQUISA
+========================================================= */
+
+function configurarFiltrosOS() {
+    ["busca", "filtroStatus", "filtroResponsavel", "filtroConclusao"]
+        .forEach(id => {
+            const campo = $(id);
+
+            if (campo) {
+                campo.addEventListener("input", atualizarTabelaOS);
+                campo.addEventListener("change", atualizarTabelaOS);
+            }
+        });
+}
+
+function atualizarFiltroResponsaveis() {
+    const campo = $("filtroResponsavel");
+    if (!campo) return;
+
+    const valorAtual = campo.value;
+
+    const responsaveis = [
+        ...new Set(ordens.map(os => os.responsavel).filter(Boolean))
+    ].sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+    campo.innerHTML = `
+        <option value="">Todos os responsáveis</option>
+        ${responsaveis.map(nome => `
+            <option value="${escaparHTML(nome)}">${escaparHTML(nome)}</option>
+        `).join("")}
+    `;
+
+    campo.value = responsaveis.includes(valorAtual) ? valorAtual : "";
+}
+
+function obterOrdensFiltradas() {
+    const busca = $("busca")?.value.toLowerCase().trim() || "";
+    const status = $("filtroStatus")?.value || "";
+    const responsavel = $("filtroResponsavel")?.value || "";
+    const conclusao = $("filtroConclusao")?.value || "";
+
+    return ordens.filter(os => {
+        const texto = [
+            os.numero,
+            os.dataAbertura,
+            os.descricao,
+            os.observacoes,
+            os.responsavel,
+            os.status
+        ].join(" ").toLowerCase();
+
+        return (
+            texto.includes(busca) &&
+            (!status || os.status === normalizarStatus(status)) &&
+            (!responsavel || os.responsavel === responsavel) &&
+            (!conclusao || os.concluida === conclusao)
+        );
+    });
+}
+
+
+/* =========================================================
+   21. ATUALIZAÇÃO DA TELA DE ORDENS
+========================================================= */
+
+function atualizarTelaOS() {
+    atualizarIndicadoresOS();
+    atualizarFiltroResponsaveis();
+    atualizarTabelaOS();
+}
+
+function atualizarIndicadoresOS() {
+    const total = ordens.length;
+
+    const concluidas = ordens.filter(os =>
+        os.concluida === "SIM"
+    ).length;
+
+    const andamento = ordens.filter(os =>
+        os.status === "EM ANDAMENTO"
+    ).length;
+
+    const pendentes = ordens.filter(os =>
+        os.concluida !== "SIM" &&
+        os.status !== "EM ANDAMENTO"
+    ).length;
+
+    if ($("totalOS")) $("totalOS").textContent = total;
+    if ($("concluidas")) $("concluidas").textContent = concluidas;
+    if ($("andamento")) $("andamento").textContent = andamento;
+    if ($("pendentes")) $("pendentes").textContent = pendentes;
+}
+
+function atualizarTabelaOS() {
+    const tabela = $("tabelaOS");
+    const vazio = $("vazio");
+
+    if (!tabela) {
+        console.error("Elemento tabelaOS não encontrado no HTML.");
+        return;
+    }
+
+    const filtradas = obterOrdensFiltradas();
+
+    tabela.innerHTML = "";
+
+    filtradas.sort((a, b) => Number(a.numero) - Number(b.numero));
+
+    filtradas.forEach(os => {
+        const linha = document.createElement("tr");
+
+        const classeStatus = os.status
+            .toLowerCase()
+            .replaceAll(" ", "-")
+            .replaceAll("/", "-");
+
+        linha.innerHTML = `
+            <td><strong>${escaparHTML(os.numero)}</strong></td>
+
+            <td>${formatarData(os.dataAbertura)}</td>
+
+            <td>
+                <strong>${escaparHTML(os.descricao)}</strong>
+                ${os.observacoes
+                    ? `<p class="muted small">${escaparHTML(os.observacoes)}</p>`
+                    : ""}
+            </td>
+
+            <td>${escaparHTML(os.responsavel)}</td>
+
+            <td>
+                <span class="status ${os.concluida === "SIM" ? "CONCLUÍDA" : "pendente"}">
+                    ${escaparHTML(os.concluida)}
+                </span>
+            </td>
+
+            <td>
+                <span class="status ${escaparHTML(classeStatus)}">
+                    ${escaparHTML(os.status)}
+                </span>
+            </td>
+
+            <td>${formatarData(os.dataConclusao)}</td>
+
+            <td class="actions-col">
+                <button
+                    type="button"
+                    class="btn btn-outline btn-small"
+                    data-acao="visualizar"
+                    data-id="${escaparHTML(os.id)}">
+                    Visualizar
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-outline btn-small"
+                    data-acao="editar"
+                    data-id="${escaparHTML(os.id)}">
+                    Editar
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-outline btn-small"
+                    data-acao="excluir"
+                    data-id="${escaparHTML(os.id)}">
+                    Excluir
+                </button>
+            </td>
+        `;
+
+        tabela.appendChild(linha);
+    });
+
+    tabela.querySelectorAll("button[data-acao]").forEach(botao => {
+        botao.addEventListener("click", () => {
+            const id = botao.dataset.id;
+            const acao = botao.dataset.acao;
+
+            if (acao === "visualizar") visualizarOS(id);
+            if (acao === "editar") editarOS(id);
+            if (acao === "excluir") excluirOS(id);
+        });
+    });
+
+    if ($("contadorLista")) {
+        $("contadorLista").textContent =
+            `${filtradas.length} ${filtradas.length === 1 ? "registro" : "registros"}`;
+    }
+
+    if (vazio) {
+        vazio.hidden = filtradas.length > 0;
+    }
+}
+
+
+/* =========================================================
+   22. BOTÕES DA PÁGINA INDIVIDUAL
+========================================================= */
+
+function configurarBotoesOS() {
+    $("btnExportar")?.addEventListener("click", exportarCSV);
+    $("btnImprimir")?.addEventListener("click", () => window.print());
+}
+
+
+/* =========================================================
+   23. EXPORTAÇÃO CSV
+========================================================= */
+
+function exportarCSV() {
+    if (!igrejaSelecionada) return;
+
+    if (!ordens.length) {
+        alert("Não existem ordens de serviço para exportar.");
+        return;
+    }
+
+    const cabecalho = [
+        "Número", "Data de abertura", "Descrição", "Observações",
+        "Responsável", "Concluída", "Status", "Data de conclusão"
+    ];
+
+    const linhas = ordens.map(os => [
+        os.numero,
+        os.dataAbertura,
+        os.descricao,
+        os.observacoes,
+        os.responsavel,
+        os.concluida,
+        os.status,
+        os.dataConclusao
+    ]);
+
+    const csv = [cabecalho, ...linhas]
+        .map(linha =>
+            linha.map(valor =>
+                `"${String(valor ?? "").replace(/"/g, '""')}"`
+            ).join(";")
+        ).join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csv], {
+        type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `OS_${igrejaSelecionada.id}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+
+/* =========================================================
+   24. BACKUP
+========================================================= */
+
+function pertenceAoSistema(chave) {
+    return typeof chave === "string" && (
+        chave.startsWith(PREFIXO) ||
+        chave === CHAVE_ANTIGA ||
+        chave === CHAVE_IGREJAS
+    );
+}
+
+function obterDadosSistema() {
+    const dados = {};
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const chave = localStorage.key(i);
+
+        if (chave && pertenceAoSistema(chave)) {
+            dados[chave] = localStorage.getItem(chave);
+        }
+    }
+
+    return dados;
+}
+
+function verificarArmazenamento() {
+    try {
+        const dados = obterDadosSistema();
+        const tamanho = new Blob([JSON.stringify(dados)]).size;
+        const mb = tamanho / (1024 * 1024);
+
+        return {
+            tamanho,
+            mb,
+            valido: mb <= LIMITE_BACKUP_MB
+        };
+    } catch (erro) {
+        console.error("Erro ao verificar armazenamento:", erro);
+        return { tamanho: 0, mb: 0, valido: false };
+    }
+}
+
+function atualizarStatusBackup() {
+    const elemento = $("backupStatus");
+    if (!elemento) return;
+
+    const armazenamento = verificarArmazenamento();
+
+    elemento.textContent = armazenamento.valido
+        ? `Dados prontos para backup • ${armazenamento.mb.toFixed(2)} MB`
+        : "Verifique o armazenamento";
+}
+
+function configurarBackup() {
+    $("btnGerarBackup")?.addEventListener("click", gerarBackup);
+
+    $("btnRestaurarBackup")?.addEventListener("click", () => {
+        $("arquivoBackup")?.click();
+    });
+
+    $("arquivoBackup")?.addEventListener("change", lerArquivoBackup);
+
+    atualizarStatusBackup();
+}
+
+function gerarBackup() {
+    if (backupEmAndamento) return;
+
+    backupEmAndamento = true;
+
+    try {
+        const backup = {
+            sistema: SISTEMA_BACKUP,
+            versao: VERSAO_BACKUP,
+            dataGeracao: new Date().toISOString(),
+            dados: obterDadosSistema()
+        };
+
+        const conteudo = JSON.stringify(backup, null, 2);
+        const tamanhoMB = new Blob([conteudo]).size / (1024 * 1024);
+
+        if (tamanhoMB > LIMITE_BACKUP_MB) {
+            alert("O arquivo de backup ultrapassou o limite permitido.");
+            return;
+        }
+
+        const blob = new Blob([conteudo], {
+            type: "application/json"
+        });
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = `backup_manutencao_ccb_${dataHoje()}.json`;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+        atualizarStatusBackup();
+        alert("Backup gerado com sucesso!");
+
+    } catch (erro) {
+        console.error("Erro ao gerar backup:", erro);
+        alert("Não foi possível gerar o backup.");
+    } finally {
+        backupEmAndamento = false;
+    }
+}
+
+function validarBackup(backup) {
+    if (!backup || typeof backup !== "object") {
+        throw new Error("Arquivo inválido.");
+    }
+
+    if (backup.sistema !== SISTEMA_BACKUP) {
+        throw new Error("Este arquivo não pertence ao Controle de Manutenção CCB.");
+    }
+
+    if (!backup.dados || typeof backup.dados !== "object") {
+        throw new Error("O arquivo não contém dados válidos.");
+    }
+
+    const chaves = Object.keys(backup.dados);
+
+    if (!chaves.length) {
+        throw new Error("O arquivo de backup está vazio.");
+    }
+
+    chaves.forEach(chave => {
+        if (!pertenceAoSistema(chave)) {
+            throw new Error(`Chave não permitida no backup: ${chave}`);
+        }
+
+        if (typeof backup.dados[chave] !== "string") {
+            throw new Error(`Conteúdo inválido na chave: ${chave}`);
+        }
+
+        JSON.parse(backup.dados[chave]);
+    });
+
+    return true;
+}
+
+function lerArquivoBackup(evento) {
+    const arquivo = evento.target.files[0];
+    if (!arquivo) return;
+
+    if (arquivo.size > LIMITE_BACKUP_MB * 1024 * 1024) {
+        alert("O arquivo ultrapassa o limite de 20 MB.");
+        evento.target.value = "";
+        return;
+    }
+
+    const leitor = new FileReader();
+
+    leitor.onload = () => {
+        try {
+            const backup = JSON.parse(leitor.result);
+            validarBackup(backup);
+            restaurarBackup(backup);
+        } catch (erro) {
+            console.error("Erro ao ler backup:", erro);
+            alert(erro.message || "Não foi possível ler o arquivo de backup.");
+        } finally {
+            evento.target.value = "";
+        }
+    };
+
+    leitor.onerror = () => {
+        alert("Erro ao abrir o arquivo selecionado.");
+        evento.target.value = "";
+    };
+
+    leitor.readAsText(arquivo);
+}
+
+function restaurarBackup(backup) {
+    if (backupEmAndamento) return;
+
+    const confirmar = confirm(
+        "ATENÇÃO!\n\n" +
+        "A restauração substituirá os dados atuais que possuem " +
+        "as mesmas chaves do backup.\n\n" +
+        "Recomendamos gerar um backup dos dados atuais antes " +
+        "de continuar.\n\nDeseja continuar?"
+    );
+
+    if (!confirmar) return;
+
+    backupEmAndamento = true;
+
+    const dadosAnteriores = {};
+
+    try {
+        Object.keys(backup.dados).forEach(chave => {
+            dadosAnteriores[chave] = localStorage.getItem(chave);
+        });
+
+        Object.entries(backup.dados).forEach(([chave, valor]) => {
+            localStorage.setItem(chave, valor);
+        });
+
+        igrejas = carregarIgrejas();
+
+        if (obterPagina() === "painel") {
+            atualizarResumoGeral();
+            renderizarListaIgrejas();
+            atualizarStatusBackup();
+
+            if (igrejaSelecionada) {
+                igrejaSelecionada = igrejas.find(item =>
+                    String(item.id) === String(igrejaSelecionada.id)
+                ) || null;
+
+                renderizarDetalhesIgreja();
+            }
+        }
+
+        if (obterPagina() === "igreja") {
+            igrejaSelecionada = obterIgrejaAtual();
+
+            if (igrejaSelecionada) {
+                ordens = carregarOrdens(igrejaSelecionada.id);
+                atualizarTelaOS();
+            }
+        }
+
+        alert("Backup restaurado com sucesso!");
+
+    } catch (erro) {
+        console.error("Erro ao restaurar backup:", erro);
+
+        Object.entries(dadosAnteriores).forEach(([chave, valor]) => {
+            try {
+                if (valor === null) localStorage.removeItem(chave);
+                else localStorage.setItem(chave, valor);
+            } catch (erroRestauracao) {
+                console.error("Erro ao reverter:", chave, erroRestauracao);
+            }
+        });
+
+        igrejas = carregarIgrejas();
+
+        alert(
+            "A restauração falhou. O sistema tentou preservar os dados anteriores."
+        );
+
+    } finally {
+        backupEmAndamento = false;
+    }
+}
+
+
+/* =========================================================
+   25. FINALIZAÇÃO
+========================================================= */
+
+console.info("Controle de Manutenção CCB carregado.");

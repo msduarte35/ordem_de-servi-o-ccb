@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#18364b">
+
+    <meta
+        name="description"
+        content="Sistema de controle de manutenção das congregações da Congregação Cristã no Brasil."
+    >
+
+    <title>Controle de Manutenção | Painel Central</title>
+
+    <link rel="stylesheet" href="./style.css">
+
+    <script src="./script.js" defer></script>
+</head>
+
+<body data-page="painel">
+
+    <!-- =================================================
+         CABEÇALHO
+    ================================================== -->
+
+    <header class="topbar">
+
+        <a
+            class="brand brand-link"
+            href="index.html"
+            aria-label="Página inicial do Controle de Manutenção"
+        >
+
+            <div class="brand-mark" aria-hidden="true">
+                OS
+            </div>
+
+            <div>
+
+                <span class="eyebrow">
+                    CONGREGAÇÃO CRISTÃ NO BRASIL
+                </span>
+
+                <h1>Controle de Manutenção</h1>
+
+            </div>
+
+        </a>
+
+        <div class="topbar-tag">
+
+            <span class="online-dot" aria-hidden="true"></span>
+
+            Painel central
+
+        </div>
+
+    </header>
+
+
+    <!-- =================================================
+         CONTEÚDO PRINCIPAL
+    ================================================== -->
+
+    <main class="container central-container">
+
+
+        <!-- =================================================
+             APRESENTAÇÃO
+        ================================================== -->
+
+        <section class="hero central-hero">
+
+            <div>
+
+                <p class="eyebrow">
+                    GESTÃO DE SERVIÇOS
+                </p>
+
+                <h2>Painel de congregações</h2>
+
+                <p class="muted">
+                    Gerencie as unidades e acompanhe os indicadores
+                    de manutenção.
+                </p>
+
+            </div>
+
+            <button
+                class="btn btn-primary btn-add-top"
+                type="button"
+                id="btnNovaIgrejaTopo"
+            >
+
+                ＋ Cadastrar congregação
+
+            </button>
+
+        </section>
+
+
+        <!-- =================================================
+             INDICADORES GERAIS
+        ================================================== -->
+
+        <section
+            class="stats stats-central"
+            aria-label="Resumo geral das manutenções"
+        >
+
+            <article class="stat-card">
+
+                <span>Congregações cadastradas</span>
+
+                <strong id="totalIgrejas">11</strong>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <span>Total de OS</span>
+
+                <strong id="totalOSGeral">0</strong>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <span>Concluídas</span>
+
+                <strong id="concluidasGeral">0</strong>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <span>Pendentes</span>
+
+                <strong id="pendentesGeral">0</strong>
+
+            </article>
+
+        </section>
+
+
+        <!-- =================================================
+             BACKUP E RESTAURAÇÃO
+        ================================================== -->
+
+        <section
+            class="backup-card"
+            aria-label="Backup e restauração dos dados"
+        >
+
+            <div
+                class="backup-icon"
+                aria-hidden="true"
+            >
+                ⇄
+            </div>
+
+
+            <div class="backup-content">
+
+                <span class="eyebrow">
+                    SEGURANÇA DOS DADOS
+                </span>
+
+                <h3>Backup e restauração</h3>
+
+                <p>
+                    Exporte os registros de manutenção para transferir
+                    as informações para outro computador ou celular.
+                </p>
+
+                <small
+                    id="backupStatus"
+                    aria-live="polite"
+                >
+                    Último backup: gere um arquivo para salvar seus dados.
+                </small>
+
+                <small class="backup-info">
+
+                    <strong>Importante:</strong>
+
+                    a transferência é manual e não sincroniza
+                    os dispositivos automaticamente.
+
+                </small>
+
+            </div>
+
+
+            <div class="backup-actions">
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="btnGerarBackup"
+                >
+
+                    ↓ Gerar backup
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn btn-outline"
+                    id="btnRestaurarBackup"
+                >
+
+                    ↑ Restaurar backup
+
+                </button>
+
+
+                <input
+                    type="file"
+                    id="arquivoBackup"
+                    accept=".json,application/json"
+                    aria-label="Selecionar arquivo de backup"
+                    hidden
+                >
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ÁREA PRINCIPAL
+        ================================================== -->
+
+        <section class="central-workspace">
+
+
+            <!-- =============================================
+                 MENU LATERAL
+            ============================================== -->
+
+            <aside
+                class="church-sidebar"
+                aria-label="Menu de congregações"
+            >
+
+                <div class="sidebar-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            UNIDADES
+                        </p>
+
+                        <h3>Congregações</h3>
+
+                    </div>
+
+                    <span
+                        class="sidebar-total"
+                        id="totalIgrejasMenu"
+                    >
+                        11
+                    </span>
+
+                </div>
+
+
+                <!-- PESQUISA -->
+
+                <label class="search sidebar-search">
+
+                    <span aria-hidden="true">⌕</span>
+
+                    <input
+                        type="search"
+                        id="buscaIgreja"
+                        placeholder="Buscar congregação..."
+                        autocomplete="off"
+                        aria-label="Buscar congregação"
+                    >
+
+                </label>
+
+
+                <!-- LISTA DINÂMICA DE CONGREGAÇÕES -->
+
+                <nav
+                    class="church-nav"
+                    id="listaIgrejas"
+                    aria-live="polite"
+                    aria-label="Lista de congregações"
+                >
+
+                    <!-- Conteúdo gerado pelo JavaScript -->
+
+                </nav>
+
+
+                <!-- CADASTRAR CONGREGAÇÃO -->
+
+                <button
+                    class="btn btn-outline btn-new-sidebar"
+                    type="button"
+                    id="btnNovaIgreja"
+                >
+
+                    ＋ Nova congregação
+
+                </button>
+
+            </aside>
+
+
+            <!-- =============================================
+                 PAINEL DE INFORMAÇÕES
+            ============================================== -->
+
+            <section
+                class="church-details panel"
+                aria-label="Detalhes da congregação selecionada"
+                aria-live="polite"
+            >
+
+                <div id="detalhesIgreja">
+
+                    <!-- Informações inseridas pelo JavaScript -->
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+        <!-- =================================================
+             RODAPÉ
+        ================================================== -->
+
+        <footer class="footer-note">
+
+            Painel central • Controle local de ordens de serviço
+
+        </footer>
+
+    </main>
+
+
+    <!-- =================================================
+         MODAL DE CADASTRO DE CONGREGAÇÃO
+    ================================================== -->
+
+    <dialog
+        id="modalIgreja"
+        class="modal-church"
+        aria-labelledby="tituloModalIgreja"
+    >
+
+        <form id="formIgreja">
+
+
+            <!-- CABEÇALHO DO MODAL -->
+
+            <div class="modal-header">
+
+                <div>
+
+                    <p class="eyebrow">
+                        CADASTRO DE UNIDADE
+                    </p>
+
+                    <h3 id="tituloModalIgreja">
+                        Nova congregação
+                    </h3>
+
+                    <p class="muted small">
+                        Preencha os dados para adicionar uma unidade
+                        ao menu lateral.
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="icon-btn"
+                    type="button"
+                    id="fecharModalIgreja"
+                    aria-label="Fechar formulário"
+                >
+
+                    ×
+
+                </button>
+
+            </div>
+
+
+            <!-- CAMPOS DO FORMULÁRIO -->
+
+            <div class="form-grid">
+
+
+                <label class="full">
+
+                    Nome da congregação
+
+                    <input
+                        type="text"
+                        id="nomeNovaIgreja"
+                        maxlength="100"
+                        placeholder="Ex.: CONGREGAÇÃO CENTRAL"
+                        autocomplete="organization"
+                        required
+                    >
+
+                </label>
+
+
+                <label>
+
+                    Código de identificação
+
+                    <input
+                        type="text"
+                        id="codigoNovaIgreja"
+                        maxlength="30"
+                        placeholder="Ex.: 07-0800"
+                        required
+                    >
+
+                </label>
+
+
+                <label>
+
+                    Localidade / descrição
+
+                    <input
+                        type="text"
+                        id="descricaoNovaIgreja"
+                        maxlength="100"
+                        placeholder="Ex.: Setor Central"
+                    >
+
+                </label>
+
+
+            </div>
+
+
+            <!-- BOTÕES DO MODAL -->
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-outline"
+                    type="button"
+                    id="cancelarCadastroIgreja"
+                >
+
+                    Cancelar
+
+                </button>
+
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
+
+                    Salvar congregação
+
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </dialog>
+
+
+</body>
+
+</html>

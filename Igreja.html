@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#18364b">
+  <title>Ordens de Serviço | Controle de Manutenção</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./script.js" defer></script>
+</head>
+<body data-page="igreja">
+  <header class="topbar">
+    <a class="brand brand-link" href="index.html">
+      <div class="brand-mark">OS</div>
+      <div>
+        <span class="eyebrow">CONGREGAÇÃO CRISTÃ NO BRASIL</span>
+        <h1>Controle de Manutenção</h1>
+      </div>
+    </a>
+    <div class="topbar-actions">
+      <a class="btn btn-outline" href="index.html">← Todas as congregações</a>
+      <button class="btn btn-primary" id="btnNovaOS">＋ Nova ordem</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <div>
+        <p class="eyebrow">GESTÃO DE SERVIÇOS</p>
+        <h2 id="nomeIgreja">Ordens de serviço</h2>
+        <p class="muted" id="codigoIgreja">Cadastre, acompanhe e atualize as atividades de manutenção.</p>
+      </div>
+      <div class="intro-actions">
+        <button class="btn btn-outline" id="btnExportar">Exportar CSV</button>
+        <button class="btn btn-outline" id="btnImprimir">Imprimir</button>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="Resumo das ordens">
+      <article class="stat-card"><span>Total de OS</span><strong id="totalOS">0</strong></article>
+      <article class="stat-card"><span>Concluídas</span><strong id="concluidas">0</strong></article>
+      <article class="stat-card"><span>Em andamento</span><strong id="andamento">0</strong></article>
+      <article class="stat-card"><span>Pendentes / atrasadas</span><strong id="pendentes">0</strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <h3>Lista de atividades</h3>
+          <p class="muted small">Os registros desta congregação são salvos neste navegador.</p>
+        </div>
+        <span class="counter" id="contadorLista">0 registros</span>
+      </div>
+      <div class="filters">
+        <label class="search">
+          <span>⌕</span>
+          <input type="search" id="busca" placeholder="Buscar por OS, local, descrição ou responsável...">
+        </label>
+        <select id="filtroStatus" aria-label="Filtrar por status">
+          <option value="">Todos os status</option>
+          <option>ABERTA</option><option>EM ANDAMENTO</option><option>N/OK</option><option>ATRASADA</option><option>CONCLUÍDA</option>
+        </select>
+        <select id="filtroResponsavel" aria-label="Filtrar por responsável">
+          <option value="">Todos os responsáveis</option>
+        </select>
+        <select id="filtroConclusao" aria-label="Filtrar por conclusão">
+          <option value="">Concluídas e não concluídas</option>
+          <option value="SIM">Somente concluídas</option>
+          <option value="NÃO">Somente não concluídas</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Nº</th><th>Abertura</th><th>Local / atividade e observações</th>
+            <th>Responsável</th><th>Concluída?</th><th>Status</th><th>Conclusão</th><th class="actions-col">Ações</th>
+          </tr></thead>
+          <tbody id="tabelaOS"></tbody>
+        </table>
+        <div class="empty-state" id="vazio" hidden>
+          <div class="empty-icon">⌕</div>
+          <strong>Nenhuma ordem encontrada</strong>
+          <p class="muted">Altere os filtros ou cadastre uma nova ordem.</p>
+        </div>
+      </div>
+    </section>
+    <p class="footer-note">MVP • Controle local de ordens de serviço</p>
+  </main>
+
+  <dialog id="modalOS">
+    <form id="formOS">
+      <div class="modal-header">
+        <div><p class="eyebrow">REGISTRO DE MANUTENÇÃO</p><h3 id="tituloModal">Nova ordem de serviço</h3></div>
+        <button type="button" class="icon-btn" id="fecharModal" aria-label="Fechar">×</button>
+      </div>
+      <input type="hidden" id="osId">
+      <div class="form-grid">
+        <label>Número da OS<input id="numero" type="number" min="1" required></label>
+        <label>Data de abertura<input id="dataAbertura" type="date" required></label>
+        <label class="full">Local / descrição da atividade<textarea id="descricao" rows="3" required placeholder="Ex.: Salão - verificar corrimão solto"></textarea></label>
+        <label class="full">Observações<textarea id="observacoes" rows="3" placeholder="Registre detalhes do serviço, materiais utilizados, motivo da pendência etc."></textarea></label>
+        <label>Responsável<select id="responsavel" required></select></label>
+        <label>Status<select id="status" required>
+          <option>ABERTA</option><option>EM ANDAMENTO</option><option>N/OK</option><option>ATRASADA</option><option>CONCLUÍDA</option>
+        </select></label>
+        <label>Concluída?<select id="concluida"><option value="NÃO">NÃO</option><option value="SIM">SIM</option></select></label>
+        <label>Data de conclusão<input id="dataConclusao" type="date"></label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" id="cancelar">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar ordem</button>
+      </div>
+    </form>
+  </dialog>
+
+  <footer class="print-signatures" aria-label="Assinaturas para impressão">
+    <div class="signature"><span></span><strong>ASSINATURA - MINISTÉRIO</strong></div>
+    <div class="signature"><span></span><strong>ASSINATURA - COORDENADOR DE MANUTENÇÃO</strong></div>
+  </footer>
+</body>
+</html>

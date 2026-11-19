@@ -2009,3 +2009,330 @@ dialog form {
     }
 
 }
+
+
+/* =====================================================
+   MENU DE OPÇÕES DAS ORDENS DE SERVIÇO
+===================================================== */
+
+.actions-col {
+    position: relative;
+    text-align: center;
+    width: 90px;
+}
+
+.os-menu-container {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Botão de três pontos */
+
+.btn-opcoes-os {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--bd, #e3e8f0);
+    border-radius: 10px;
+
+    background: var(--card, #fff);
+    color: var(--tx, #202938);
+
+    font-size: 25px;
+    font-weight: bold;
+    line-height: 1;
+
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.btn-opcoes-os:hover,
+.btn-opcoes-os[aria-expanded="true"] {
+    background: var(--acs, #edf2ff);
+    color: var(--ac, #315fcb);
+    border-color: var(--ac, #315fcb);
+}
+
+/* Menu suspenso */
+
+.os-dropdown {
+    position: absolute;
+    top: calc(100% + 7px);
+    right: 0;
+
+    width: 175px;
+    padding: 6px;
+
+    background: var(--card, #fff);
+    border: 1px solid var(--bd, #e3e8f0);
+    border-radius: 12px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .14);
+
+    z-index: 1000;
+    text-align: left;
+}
+
+.os-dropdown[hidden] {
+    display: none !important;
+}
+
+/* Itens do menu */
+
+.os-dropdown-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 11px 12px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: transparent;
+    color: var(--tx, #202938);
+
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.os-dropdown-item span {
+    width: 18px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.os-dropdown-item:hover {
+    background: var(--acs, #edf2ff);
+    color: var(--ac, #315fcb);
+}
+
+/* Opção excluir */
+
+.os-dropdown-item.excluir {
+    color: #dc3545;
+}
+
+.os-dropdown-item.excluir:hover {
+    background: #fff0f0;
+    color: #c82333;
+}
+
+/* Acessibilidade */
+
+.btn-opcoes-os:focus-visible,
+.os-dropdown-item:focus-visible {
+    outline: 2px solid var(--ac, #315fcb);
+    outline-offset: 2px;
+}
+
+
+/* =====================================================
+   MENU PROFISSIONAL DE OPÇÕES DAS ORDENS DE SERVIÇO
+===================================================== */
+
+.actions-col {
+    position: relative;
+    text-align: center;
+    width: 90px;
+}
+
+.os-menu-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* BOTÃO PRINCIPAL - TRÊS PONTOS */
+
+.btn-opcoes-os {
+    width: 40px;
+    height: 40px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #dbe4f0;
+    border-radius: 12px;
+
+    background: linear-gradient(145deg, #ffffff, #edf3ff);
+    color: #2458c5;
+
+    font-size: 27px;
+    font-weight: 800;
+
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(37, 99, 235, .10);
+
+    transition: all .25s ease;
+}
+
+.btn-opcoes-os:hover,
+.btn-opcoes-os[aria-expanded="true"] {
+    background: linear-gradient(135deg, #2563eb, #1746b5);
+    color: #ffffff;
+    border-color: #2563eb;
+
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(37, 99, 235, .28);
+}
+
+/* MENU SUSPENSO */
+
+.os-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+
+    width: 190px;
+    padding: 7px;
+
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+
+    box-shadow: 0 12px 30px rgba(15, 23, 42, .18);
+
+    z-index: 1000;
+    text-align: left;
+
+    animation: aparecerMenuOS .18s ease;
+}
+
+.os-dropdown[hidden] {
+    display: none !important;
+}
+
+@keyframes aparecerMenuOS {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* BOTÕES INTERNOS */
+
+.os-dropdown-item {
+    width: 100%;
+    min-height: 42px;
+
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 10px 12px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: transparent;
+    color: #334155;
+
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.os-dropdown-item span {
+    width: 22px;
+    height: 22px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 7px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+/* VISUALIZAR - AZUL */
+
+.os-dropdown-item[data-acao="visualizar"] {
+    color: #1d4ed8;
+}
+
+.os-dropdown-item[data-acao="visualizar"] span {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.os-dropdown-item[data-acao="visualizar"]:hover {
+    background: #eff6ff;
+}
+
+/* EDITAR - LARANJA */
+
+.os-dropdown-item[data-acao="editar"] {
+    color: #b45309;
+}
+
+.os-dropdown-item[data-acao="editar"] span {
+    background: #ffedd5;
+    color: #c2410c;
+}
+
+.os-dropdown-item[data-acao="editar"]:hover {
+    background: #fff7ed;
+}
+
+/* EXCLUIR - VERMELHO */
+
+.os-dropdown-item.excluir {
+    color: #dc2626;
+}
+
+.os-dropdown-item.excluir span {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.os-dropdown-item.excluir:hover {
+    background: #fef2f2;
+}
+
+/* FOCO PELO TECLADO */
+
+.btn-opcoes-os:focus-visible,
+.os-dropdown-item:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 2px;
+}
+
+/* CELULAR */
+
+@media (max-width: 768px) {
+    .btn-opcoes-os {
+        width: 42px;
+        height: 42px;
+    }
+
+    .os-dropdown {
+        width: 185px;
+    }
+
+    .os-dropdown-item {
+        min-height: 46px;
+        font-size: 14px;
+    }
+}

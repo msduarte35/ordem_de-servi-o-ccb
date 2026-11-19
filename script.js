@@ -1114,6 +1114,7 @@ function atualizarIndicadoresOS() {
     if ($("pendentes")) $("pendentes").textContent = pendentes;
 }
 
+
 function atualizarTabelaOS() {
     const tabela = $("tabelaOS");
     const vazio = $("vazio");
@@ -1166,34 +1167,145 @@ function atualizarTabelaOS() {
             <td>${formatarData(os.dataConclusao)}</td>
 
             <td class="actions-col">
-                <button
-                    type="button"
-                    class="btn btn-outline btn-small"
-                    data-acao="visualizar"
-                    data-id="${escaparHTML(os.id)}">
-                    Visualizar
-                </button>
+                <div class="os-menu-container">
 
-                <button
-                    type="button"
-                    class="btn btn-outline btn-small"
-                    data-acao="editar"
-                    data-id="${escaparHTML(os.id)}">
-                    Editar
-                </button>
+                    <button
+                        type="button"
+                        class="btn-opcoes-os"
+                        data-menu-id="${escaparHTML(os.id)}"
+                        aria-label="Opções da ordem de serviço ${escaparHTML(os.numero)}"
+                        aria-expanded="false"
+                        title="Mais opções">
 
-                <button
-                    type="button"
-                    class="btn btn-outline btn-small"
-                    data-acao="excluir"
-                    data-id="${escaparHTML(os.id)}">
-                    Excluir
-                </button>
+                        <span>⋮</span>
+                    </button>
+
+                    <div
+                        class="os-dropdown"
+                        data-dropdown-id="${escaparHTML(os.id)}"
+                        hidden>
+
+                        <button
+                            type="button"
+                            class="os-dropdown-item"
+                            data-acao="visualizar"
+                            data-id="${escaparHTML(os.id)}">
+
+                            <span>◉</span>
+                            Visualizar
+                        </button>
+
+                        <button
+                            type="button"
+                            class="os-dropdown-item"
+                            data-acao="editar"
+                            data-id="${escaparHTML(os.id)}">
+
+                            <span>✎</span>
+                            Editar
+                        </button>
+
+                        <button
+                            type="button"
+                            class="os-dropdown-item excluir"
+                            data-acao="excluir"
+                            data-id="${escaparHTML(os.id)}">
+
+                            <span>⌫</span>
+                            Excluir
+                        </button>
+
+                    </div>
+                </div>
             </td>
         `;
 
         tabela.appendChild(linha);
     });
+
+    // ABRIR E FECHAR O MENU DE OPÇÕES
+    tabela.querySelectorAll(".btn-opcoes-os").forEach(botao => {
+
+        botao.addEventListener("click", evento => {
+            evento.stopPropagation();
+
+            const id = botao.dataset.menuId;
+
+            const menu = tabela.querySelector(
+                `[data-dropdown-id="${CSS.escape(id)}"]`
+            );
+
+            const estavaAberto = menu && !menu.hidden;
+
+            // Fecha todos os outros menus
+            tabela.querySelectorAll(".os-dropdown").forEach(item => {
+                item.hidden = true;
+            });
+
+            tabela.querySelectorAll(".btn-opcoes-os").forEach(item => {
+                item.setAttribute("aria-expanded", "false");
+            });
+
+            // Abre o menu selecionado
+            if (menu && !estavaAberto) {
+                menu.hidden = false;
+                botao.setAttribute("aria-expanded", "true");
+            }
+        });
+    });
+
+    // EXECUTAR AS AÇÕES
+    tabela.querySelectorAll(".os-dropdown-item").forEach(botao => {
+
+        botao.addEventListener("click", evento => {
+            evento.stopPropagation();
+
+            const id = botao.dataset.id;
+            const acao = botao.dataset.acao;
+
+            // Fecha os menus
+            tabela.querySelectorAll(".os-dropdown").forEach(item => {
+                item.hidden = true;
+            });
+
+            tabela.querySelectorAll(".btn-opcoes-os").forEach(item => {
+                item.setAttribute("aria-expanded", "false");
+            });
+
+            if (acao === "visualizar") visualizarOS(id);
+            if (acao === "editar") editarOS(id);
+            if (acao === "excluir") excluirOS(id);
+        });
+    });
+
+    // FECHAR MENU AO CLICAR FORA
+    if (!document.body.dataset.menuOSConfigurado) {
+
+        document.addEventListener("click", () => {
+
+            document.querySelectorAll(".os-dropdown").forEach(menu => {
+                menu.hidden = true;
+            });
+
+            document.querySelectorAll(".btn-opcoes-os").forEach(botao => {
+                botao.setAttribute("aria-expanded", "false");
+            });
+
+        });
+
+        document.body.dataset.menuOSConfigurado = "true";
+    }
+
+    if ($("contadorLista")) {
+        $("contadorLista").textContent =
+            `${filtradas.length} ${filtradas.length === 1 ? "registro" : "registros"}`;
+    }
+
+    if (vazio) {
+        vazio.hidden = filtradas.length > 0;
+    }
+}
+
 
     tabela.querySelectorAll("button[data-acao]").forEach(botao => {
         botao.addEventListener("click", () => {
@@ -1214,7 +1326,7 @@ function atualizarTabelaOS() {
     if (vazio) {
         vazio.hidden = filtradas.length > 0;
     }
-}
+
 
 
 /* =========================================================

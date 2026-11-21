@@ -2353,3 +2353,41 @@ dialog form {
     background-position: center;
     background-size: contain;
 }
+
+/* =========================================
+   LOGO CCB - PAINEL CENTRAL
+========================================= */
+
+.hero-apresentacao {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.logo-ccb {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.hero-texto {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+@media (max-width: 600px) {
+
+    .hero-apresentacao {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .logo-ccb {
+        width: 85px;
+        height: 85px;
+    }
+
+}

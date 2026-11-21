@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -22,9 +21,7 @@
 
 <body data-page="painel">
 
-    <!-- =================================================
-         CABEÇALHO
-    ================================================== -->
+    <!-- CABEÇALHO -->
 
     <header class="topbar">
 
@@ -39,38 +36,28 @@
             </div>
 
             <div>
-
                 <span class="eyebrow">
                     CONGREGAÇÃO CRISTÃ NO BRASIL
                 </span>
 
                 <h1>Controle de Manutenção</h1>
-
             </div>
 
         </a>
 
         <div class="topbar-tag">
-
             <span class="online-dot" aria-hidden="true"></span>
-
             Painel central
-
         </div>
 
     </header>
 
 
-    <!-- =================================================
-         CONTEÚDO PRINCIPAL
-    ================================================== -->
+    <!-- CONTEÚDO PRINCIPAL -->
 
     <main class="container central-container">
 
-
-        <!-- =================================================
-             APRESENTAÇÃO
-        ================================================== -->
+        <!-- APRESENTAÇÃO -->
 
         <section class="hero central-hero">
 
@@ -110,9 +97,7 @@
         </section>
 
 
-        <!-- =================================================
-             INDICADORES GERAIS
-        ================================================== -->
+        <!-- INDICADORES GERAIS -->
 
         <section
             class="stats stats-central"
@@ -120,59 +105,38 @@
         >
 
             <article class="stat-card">
-
                 <span>Congregações cadastradas</span>
-
                 <strong id="totalIgrejas">11</strong>
-
             </article>
 
-
             <article class="stat-card">
-
                 <span>Total de OS</span>
-
                 <strong id="totalOSGeral">0</strong>
-
             </article>
 
-
             <article class="stat-card">
-
                 <span>Concluídas</span>
-
                 <strong id="concluidasGeral">0</strong>
-
             </article>
 
-
             <article class="stat-card">
-
                 <span>Pendentes</span>
-
                 <strong id="pendentesGeral">0</strong>
-
             </article>
 
         </section>
 
 
-        <!-- =================================================
-             BACKUP E RESTAURAÇÃO
-        ================================================== -->
+        <!-- BACKUP E RESTAURAÇÃO -->
 
         <section
             class="backup-card"
             aria-label="Backup e restauração dos dados"
         >
 
-            <div
-                class="backup-icon"
-                aria-hidden="true"
-            >
+            <div class="backup-icon" aria-hidden="true">
                 ⇄
             </div>
-
 
             <div class="backup-content">
 
@@ -205,7 +169,6 @@
 
             </div>
 
-
             <div class="backup-actions">
 
                 <button
@@ -216,7 +179,6 @@
                     ↓ Gerar backup
                 </button>
 
-
                 <button
                     type="button"
                     class="btn btn-outline"
@@ -224,7 +186,6 @@
                 >
                     ↑ Restaurar backup
                 </button>
-
 
                 <input
                     type="file"
@@ -239,16 +200,11 @@
         </section>
 
 
-        <!-- =================================================
-             ÁREA PRINCIPAL
-        ================================================== -->
+        <!-- ÁREA PRINCIPAL -->
 
         <section class="central-workspace">
 
-
-            <!-- =============================================
-                 MENU LATERAL
-            ============================================== -->
+            <!-- MENU LATERAL -->
 
             <aside
                 class="church-sidebar"
@@ -294,7 +250,7 @@
                 </label>
 
 
-                <!-- LISTA DINÂMICA DE CONGREGAÇÕES -->
+                <!-- LISTA DE CONGREGAÇÕES -->
 
                 <nav
                     class="church-nav"
@@ -302,9 +258,7 @@
                     aria-live="polite"
                     aria-label="Lista de congregações"
                 >
-
                     <!-- Conteúdo gerado pelo JavaScript -->
-
                 </nav>
 
 
@@ -321,9 +275,7 @@
             </aside>
 
 
-            <!-- =============================================
-                 PAINEL DE INFORMAÇÕES
-            ============================================== -->
+            <!-- PAINEL DE INFORMAÇÕES -->
 
             <section
                 class="church-details panel"
@@ -332,9 +284,7 @@
             >
 
                 <div id="detalhesIgreja">
-
                     <!-- Informações inseridas pelo JavaScript -->
-
                 </div>
 
             </section>
@@ -342,334 +292,16 @@
         </section>
 
 
-        <!-- =================================================
-             ATA – REUNIÃO DE MANUTENÇÃO PREVENTIVA
-        ================================================== -->
-
-        <section class="ata-section panel" id="secaoAta">
-
-            <!-- CABEÇALHO DA ATA -->
-
-            <div class="ata-header">
-
-                <div>
-
-                    <p class="eyebrow">
-                        DOCUMENTOS E RELATÓRIOS
-                    </p>
-
-                    <h2>ATA – Reunião Manutenção Preventiva</h2>
-
-                    <p class="muted">
-                        Gere a ata mensal com as ordens de serviço
-                        da congregação selecionada.
-                    </p>
-
-                </div>
-
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    id="btnImprimirAta"
-                >
-                    Imprimir ATA
-                </button>
-
-            </div>
-
-
-            <!-- FORMULÁRIO DA ATA -->
-
-            <div class="form-grid ata-form">
-
-                <label>
-
-                    Congregação
-
-                    <select id="ataIgreja" required>
-
-                        <option value="">
-                            Selecione a congregação
-                        </option>
-
-                    </select>
-
-                </label>
-
-
-                <label>
-
-                    Data da reunião
-
-                    <input
-                        type="date"
-                        id="ataData"
-                        required
-                    >
-
-                </label>
-
-
-                <label>
-
-                    Horário
-
-                    <input
-                        type="time"
-                        id="ataHorario"
-                    >
-
-                </label>
-
-
-                <label>
-
-                    Mês de competência
-
-                    <select id="ataMes" required>
-
-                        <option value="">
-                            Selecione
-                        </option>
-
-                        <option value="Janeiro">Janeiro</option>
-                        <option value="Fevereiro">Fevereiro</option>
-                        <option value="Março">Março</option>
-                        <option value="Abril">Abril</option>
-                        <option value="Maio">Maio</option>
-                        <option value="Junho">Junho</option>
-                        <option value="Julho">Julho</option>
-                        <option value="Agosto">Agosto</option>
-                        <option value="Setembro">Setembro</option>
-                        <option value="Outubro">Outubro</option>
-                        <option value="Novembro">Novembro</option>
-                        <option value="Dezembro">Dezembro</option>
-
-                    </select>
-
-                </label>
-
-
-                <label>
-
-                    Ano
-
-                    <input
-                        type="number"
-                        id="ataAno"
-                        value="2026"
-                        min="2020"
-                        max="2100"
-                    >
-
-                </label>
-
-
-                <label class="full">
-
-                    Participantes da reunião
-
-                    <textarea
-                        id="ataParticipantes"
-                        rows="4"
-                        placeholder="Digite o nome dos participantes, um por linha..."
-                    ></textarea>
-
-                </label>
-
-            </div>
-
-
-            <!-- =================================================
-                 DOCUMENTO QUE SERÁ IMPRESSO
-            ================================================== -->
-
-            <div class="ata-preview" id="conteudoAta">
-
-                <div class="ata-documento">
-
-
-                    <!-- CABEÇALHO DO DOCUMENTO -->
-
-                    <header class="ata-documento-header">
-
-                        <img
-                            src="./Logoccb.avif"
-                            alt="Logo da Congregação Cristã no Brasil"
-                            class="ata-logo"
-                        >
-
-                        <h2>
-                            CONGREGAÇÃO CRISTÃ NO BRASIL
-                        </h2>
-
-                        <h3>
-                            ATA – Reunião Manutenção Preventiva
-                        </h3>
-
-                    </header>
-
-
-                    <!-- DADOS DA REUNIÃO -->
-
-                    <p>
-
-                        <strong>Data:</strong>
-
-                        <span id="ataPrintData">
-                            ____ / ____ / ______
-                        </span>
-
-                        às
-
-                        <span id="ataPrintHorario">
-                            ______
-                        </span>
-
-                    </p>
-
-
-                    <p>
-
-                        <strong>Na casa de oração:</strong>
-
-                        <span id="ataPrintIgreja">
-                            ________________________
-                        </span>
-
-                    </p>
-
-
-                    <!-- TEXTO DA ATA -->
-
-                    <p class="ata-texto">
-
-                        Foi realizada a reunião mensal da manutenção
-                        preventiva, sendo observado e ciência de todos
-                        o cumprimento das inspeções conforme cronograma
-                        disponibilizado no Sistema de Gestão da
-                        Congregação Cristã no Brasil referente à
-                        competência Mês:
-
-                        <strong id="ataPrintMes">
-                            ____________
-                        </strong>
-
-                        do ano:
-
-                        <strong id="ataPrintAno">
-                            2026
-                        </strong>.
-
-                    </p>
-
-
-                    <!-- PARTICIPANTES -->
-
-                    <h3>
-                        Participantes da reunião
-                    </h3>
-
-                    <div id="ataPrintParticipantes">
-
-                        __________________________________________
-
-                    </div>
-
-
-                    <!-- ORDENS DE SERVIÇO -->
-
-                    <h3>
-                        Ordens de Serviço realizadas na data selecionada
-                    </h3>
-
-                    <div class="ata-tabela-container">
-
-                        <table class="ata-tabela">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>Nº</th>
-
-                                    <th>Descrição</th>
-
-                                    <th>Responsável</th>
-
-                                    <th>Status</th>
-
-                                </tr>
-
-                            </thead>
-
-
-                            <tbody id="ataPrintOrdens">
-
-                                <tr>
-
-                                    <td colspan="4">
-
-                                        As ordens de serviço serão
-                                        carregadas após a seleção.
-
-                                    </td>
-
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-
-                    <!-- ASSINATURAS -->
-
-                    <div class="ata-assinaturas">
-
-                        <div>
-
-                            <span></span>
-
-                            Ministério
-
-                        </div>
-
-
-                        <div>
-
-                            <span></span>
-
-                            Responsável pela Manutenção
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             RODAPÉ
-        ================================================== -->
+        <!-- RODAPÉ -->
 
         <footer class="footer-note">
-
             Painel central • Controle local de ordens de serviço
-
         </footer>
 
     </main>
 
 
-    <!-- =================================================
-         MODAL DE CADASTRO DE CONGREGAÇÃO
-    ================================================== -->
+    <!-- MODAL DE CADASTRO DE CONGREGAÇÃO -->
 
     <dialog
         id="modalIgreja"
@@ -678,7 +310,6 @@
     >
 
         <form id="formIgreja">
-
 
             <!-- CABEÇALHO DO MODAL -->
 
@@ -701,7 +332,6 @@
 
                 </div>
 
-
                 <button
                     class="icon-btn"
                     type="button"
@@ -718,7 +348,6 @@
 
             <div class="form-grid">
 
-
                 <label class="full">
 
                     Nome da congregação
@@ -734,7 +363,6 @@
 
                 </label>
 
-
                 <label>
 
                     Código de identificação
@@ -749,7 +377,6 @@
 
                 </label>
 
-
                 <label>
 
                     Localidade / descrição
@@ -762,7 +389,6 @@
                     >
 
                 </label>
-
 
             </div>
 
@@ -779,7 +405,6 @@
                     Cancelar
                 </button>
 
-
                 <button
                     class="btn btn-primary"
                     type="submit"
@@ -789,11 +414,9 @@
 
             </div>
 
-
         </form>
 
     </dialog>
-
 
 </body>
 

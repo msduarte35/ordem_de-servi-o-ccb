@@ -1,14 +1,20 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#18364b">
+
   <title>Ordens de Serviço | Controle de Manutenção</title>
+
   <link rel="stylesheet" href="./style.css">
   <script src="./script.js" defer></script>
 </head>
+
 <body data-page="igreja">
+
   <header class="topbar">
     <a class="brand brand-link" href="index.html">
       <div class="brand-mark">OS</div>
@@ -17,6 +23,7 @@
         <h1>Controle de Manutenção</h1>
       </div>
     </a>
+
     <div class="topbar-actions">
       <a class="btn btn-outline" href="index.html">← Todas as congregações</a>
       <button class="btn btn-primary" id="btnNovaOS">＋ Nova ordem</button>
@@ -24,99 +31,399 @@
   </header>
 
   <main class="container">
+
     <section class="intro">
       <div>
         <p class="eyebrow">GESTÃO DE SERVIÇOS</p>
         <h2 id="nomeIgreja">Ordens de serviço</h2>
-        <p class="muted" id="codigoIgreja">Cadastre, acompanhe e atualize as atividades de manutenção.</p>
+        <p class="muted" id="codigoIgreja">
+          Cadastre, acompanhe e atualize as atividades de manutenção.
+        </p>
       </div>
+
       <div class="intro-actions">
         <button class="btn btn-outline" id="btnExportar">Exportar CSV</button>
-        <button class="btn btn-outline" id="btnImprimir">Imprimir</button>
+        <button class="btn btn-primary" id="btnImprimir">Imprimir ATA</button>
       </div>
     </section>
 
-    <section class="stats" aria-label="Resumo das ordens">
-      <article class="stat-card"><span>Total de OS</span><strong id="totalOS">0</strong></article>
-      <article class="stat-card"><span>Concluídas</span><strong id="concluidas">0</strong></article>
-      <article class="stat-card"><span>Em andamento</span><strong id="andamento">0</strong></article>
-      <article class="stat-card"><span>Pendentes / atrasadas</span><strong id="pendentes">0</strong></article>
+    <!-- =========================================
+         ATA DA REUNIÃO MENSAL
+    ========================================== -->
+
+    <section class="panel ata-panel" id="painelAta">
+
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">DOCUMENTO DE REUNIÃO</p>
+          <h3>ATA – Reunião Manutenção Preventiva</h3>
+          <p class="muted small">
+            Preencha os dados da reunião para gerar a ata da congregação atual.
+          </p>
+        </div>
+      </div>
+
+      <div class="ata-config">
+
+        <div class="form-grid">
+
+          <label>
+            Data da reunião
+            <input type="date" id="ataData" required>
+          </label>
+
+          <label>
+            Horário da reunião
+            <input type="time" id="ataHorario" value="19:30">
+          </label>
+
+          <label>
+            Mês de competência
+            <select id="ataMes">
+              <option value="Janeiro">Janeiro</option>
+              <option value="Fevereiro">Fevereiro</option>
+              <option value="Março">Março</option>
+              <option value="Abril">Abril</option>
+              <option value="Maio">Maio</option>
+              <option value="Junho">Junho</option>
+              <option value="Julho">Julho</option>
+              <option value="Agosto">Agosto</option>
+              <option value="Setembro">Setembro</option>
+              <option value="Outubro">Outubro</option>
+              <option value="Novembro">Novembro</option>
+              <option value="Dezembro">Dezembro</option>
+            </select>
+          </label>
+
+          <label>
+            Ano de competência
+            <input type="number" id="ataAno" min="2026" value="2026">
+          </label>
+
+          <label class="full">
+            Participantes
+            <textarea
+              id="ataParticipantes"
+              rows="3"
+              placeholder="Informe os nomes dos participantes da reunião..."
+            ></textarea>
+          </label>
+
+        </div>
+
+        <p class="muted small">
+          A congregação será identificada automaticamente conforme a página individual aberta.
+        </p>
+
+      </div>
+
+      <div class="ata-preview" id="ataDocumento">
+
+        <div class="ata-cabecalho">
+          <img
+            src="./Logoccb.avif"
+            alt="Logo Congregação Cristã no Brasil"
+            class="ata-logo"
+          >
+
+          <h2>CONGREGAÇÃO CRISTÃ NO BRASIL</h2>
+          <h3>ATA – Reunião Manutenção Preventiva</h3>
+
+          <p>
+            Congregação:
+            <strong id="ataNomeIgreja">Carregando congregação...</strong>
+          </p>
+
+          <p>
+            Data:
+            <strong id="ataDataTexto">Não informada</strong>
+            &nbsp; | &nbsp;
+            Horário:
+            <strong id="ataHorarioTexto">Não informado</strong>
+          </p>
+        </div>
+
+        <div class="ata-conteudo">
+
+          <h3>REGISTRO DA REUNIÃO</h3>
+
+          <p id="ataTexto">
+            Foi realizada a reunião mensal da manutenção preventiva,
+            sendo observado e ciência de todos o cumprimento das inspeções
+            conforme cronograma disponibilizado no Sistema de Gestão da
+            Congregação Cristã no Brasil referente à competência
+            Mês: <strong id="ataMesTexto">Janeiro</strong>
+            do ano: <strong id="ataAnoTexto">2026</strong>.
+          </p>
+
+          <div class="ata-participantes">
+            <strong>Participantes:</strong>
+            <p id="ataParticipantesTexto">Não informados.</p>
+          </div>
+
+          <h3>ORDENS DE SERVIÇO DA COMPETÊNCIA</h3>
+
+          <p class="ata-periodo">
+            Ordens de serviço abertas na data da reunião.
+          </p>
+
+          <div class="table-wrap ata-table-wrap">
+            <table class="ata-tabela">
+              <thead>
+                <tr>
+                  <th>Nº</th>
+                  <th>Descrição da atividade</th>
+                  <th>Responsável</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+
+              <tbody id="ataTabelaOS">
+                <tr>
+                  <td colspan="4">
+                    As ordens de serviço serão carregadas automaticamente.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="ata-total">
+            Total de ordens de serviço:
+            <strong id="ataTotalOS">0</strong>
+          </p>
+
+        </div>
+
+        <footer class="print-signatures" aria-label="Assinaturas para impressão">
+
+          <div class="signature">
+            <span></span>
+            <strong>ASSINATURA - MINISTÉRIO</strong>
+          </div>
+
+          <div class="signature">
+            <span></span>
+            <strong>ASSINATURA - RESPONSÁVEL PELA MANUTENÇÃO</strong>
+          </div>
+
+        </footer>
+
+      </div>
+
     </section>
 
+    <!-- =========================================
+         INDICADORES DAS ORDENS DE SERVIÇO
+    ========================================== -->
+
+    <section class="stats" aria-label="Resumo das ordens">
+
+      <article class="stat-card">
+        <span>Total de OS</span>
+        <strong id="totalOS">0</strong>
+      </article>
+
+      <article class="stat-card">
+        <span>Concluídas</span>
+        <strong id="concluidas">0</strong>
+      </article>
+
+      <article class="stat-card">
+        <span>Em andamento</span>
+        <strong id="andamento">0</strong>
+      </article>
+
+      <article class="stat-card">
+        <span>Pendentes / atrasadas</span>
+        <strong id="pendentes">0</strong>
+      </article>
+
+    </section>
+
+    <!-- =========================================
+         LISTA DE ATIVIDADES
+    ========================================== -->
+
     <section class="panel">
+
       <div class="panel-heading">
         <div>
           <h3>Lista de atividades</h3>
-          <p class="muted small">Os registros desta congregação são salvos neste navegador.</p>
+          <p class="muted small">
+            Os registros desta congregação são salvos neste navegador.
+          </p>
         </div>
+
         <span class="counter" id="contadorLista">0 registros</span>
       </div>
+
       <div class="filters">
+
         <label class="search">
           <span>⌕</span>
-          <input type="search" id="busca" placeholder="Buscar por OS, local, descrição ou responsável...">
+          <input
+            type="search"
+            id="busca"
+            placeholder="Buscar por OS, local, descrição ou responsável..."
+          >
         </label>
+
         <select id="filtroStatus" aria-label="Filtrar por status">
           <option value="">Todos os status</option>
-          <option>ABERTA</option><option>EM ANDAMENTO</option><option>N/OK</option><option>ATRASADA</option><option>CONCLUÍDA</option>
+          <option>ABERTA</option>
+          <option>EM ANDAMENTO</option>
+          <option>N/OK</option>
+          <option>ATRASADA</option>
+          <option>CONCLUÍDA</option>
         </select>
+
         <select id="filtroResponsavel" aria-label="Filtrar por responsável">
           <option value="">Todos os responsáveis</option>
         </select>
+
         <select id="filtroConclusao" aria-label="Filtrar por conclusão">
           <option value="">Concluídas e não concluídas</option>
           <option value="SIM">Somente concluídas</option>
           <option value="NÃO">Somente não concluídas</option>
         </select>
+
       </div>
 
       <div class="table-wrap">
+
         <table>
-          <thead><tr>
-            <th>Nº</th><th>Abertura</th><th>Local / atividade e observações</th>
-            <th>Responsável</th><th>Concluída?</th><th>Status</th><th>Conclusão</th><th class="actions-col">Ações</th>
-          </tr></thead>
+          <thead>
+            <tr>
+              <th>Nº</th>
+              <th>Abertura</th>
+              <th>Local / atividade e observações</th>
+              <th>Responsável</th>
+              <th>Concluída?</th>
+              <th>Status</th>
+              <th>Conclusão</th>
+              <th class="actions-col">Ações</th>
+            </tr>
+          </thead>
+
           <tbody id="tabelaOS"></tbody>
         </table>
+
         <div class="empty-state" id="vazio" hidden>
           <div class="empty-icon">⌕</div>
           <strong>Nenhuma ordem encontrada</strong>
-          <p class="muted">Altere os filtros ou cadastre uma nova ordem.</p>
+          <p class="muted">
+            Altere os filtros ou cadastre uma nova ordem.
+          </p>
         </div>
+
       </div>
+
     </section>
+
     <p class="footer-note">MVP • Controle local de ordens de serviço</p>
+
   </main>
 
+  <!-- =========================================
+       MODAL DE CADASTRO DE OS
+  ========================================== -->
+
   <dialog id="modalOS">
+
     <form id="formOS">
+
       <div class="modal-header">
-        <div><p class="eyebrow">REGISTRO DE MANUTENÇÃO</p><h3 id="tituloModal">Nova ordem de serviço</h3></div>
-        <button type="button" class="icon-btn" id="fecharModal" aria-label="Fechar">×</button>
+        <div>
+          <p class="eyebrow">REGISTRO DE MANUTENÇÃO</p>
+          <h3 id="tituloModal">Nova ordem de serviço</h3>
+        </div>
+
+        <button
+          type="button"
+          class="icon-btn"
+          id="fecharModal"
+          aria-label="Fechar"
+        >×</button>
       </div>
+
       <input type="hidden" id="osId">
+
       <div class="form-grid">
-        <label>Número da OS<input id="numero" type="number" min="1" required></label>
-        <label>Data de abertura<input id="dataAbertura" type="date" required></label>
-        <label class="full">Local / descrição da atividade<textarea id="descricao" rows="3" required placeholder="Ex.: Salão - verificar corrimão solto"></textarea></label>
-        <label class="full">Observações<textarea id="observacoes" rows="3" placeholder="Registre detalhes do serviço, materiais utilizados, motivo da pendência etc."></textarea></label>
-        <label>Responsável<select id="responsavel" required></select></label>
-        <label>Status<select id="status" required>
-          <option>ABERTA</option><option>EM ANDAMENTO</option><option>N/OK</option><option>ATRASADA</option><option>CONCLUÍDA</option>
-        </select></label>
-        <label>Concluída?<select id="concluida"><option value="NÃO">NÃO</option><option value="SIM">SIM</option></select></label>
-        <label>Data de conclusão<input id="dataConclusao" type="date"></label>
+
+        <label>
+          Número da OS
+          <input id="numero" type="number" min="1" required>
+        </label>
+
+        <label>
+          Data de abertura
+          <input id="dataAbertura" type="date" required>
+        </label>
+
+        <label class="full">
+          Local / descrição da atividade
+          <textarea
+            id="descricao"
+            rows="3"
+            required
+            placeholder="Ex.: Salão - verificar corrimão solto"
+          ></textarea>
+        </label>
+
+        <label class="full">
+          Observações
+          <textarea
+            id="observacoes"
+            rows="3"
+            placeholder="Registre detalhes do serviço, materiais utilizados, motivo da pendência etc."
+          ></textarea>
+        </label>
+
+        <label>
+          Responsável
+          <select id="responsavel" required></select>
+        </label>
+
+        <label>
+          Status
+          <select id="status" required>
+            <option>ABERTA</option>
+            <option>EM ANDAMENTO</option>
+            <option>N/OK</option>
+            <option>ATRASADA</option>
+            <option>CONCLUÍDA</option>
+          </select>
+        </label>
+
+        <label>
+          Concluída?
+          <select id="concluida">
+            <option value="NÃO">NÃO</option>
+            <option value="SIM">SIM</option>
+          </select>
+        </label>
+
+        <label>
+          Data de conclusão
+          <input id="dataConclusao" type="date">
+        </label>
+
       </div>
+
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline" id="cancelar">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Salvar ordem</button>
+        <button type="button" class="btn btn-outline" id="cancelar">
+          Cancelar
+        </button>
+
+        <button type="submit" class="btn btn-primary">
+          Salvar ordem
+        </button>
       </div>
+
     </form>
+
   </dialog>
 
-  <footer class="print-signatures" aria-label="Assinaturas para impressão">
-    <div class="signature"><span></span><strong>ASSINATURA - MINISTÉRIO</strong></div>
-    <div class="signature"><span></span><strong>ASSINATURA - COORDENADOR DE MANUTENÇÃO</strong></div>
-  </footer>
 </body>
 </html>

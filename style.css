@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
 
 /* =========================================
@@ -206,18 +207,17 @@ img {
 }
 
 /* =========================================
-   5. BOTÕES
+   5. BOTÕES - VISUAL PROFISSIONAL
 ========================================= */
 
 .btn {
     border: 0;
     border-radius: 9px;
-    padding: 5px 5px;
+    padding: 11px 17px;
 
-    font: 60 10px 'DM Sans', sans-serif;
-    transition: .18s;
-    
+    font: 600 13px 'DM Sans', sans-serif;
 
+    transition: all .2s ease;
     text-decoration: none;
 
     display: inline-flex;
@@ -226,10 +226,12 @@ img {
     gap: 8px;
 
     white-space: nowrap;
+    cursor: pointer;
 }
 
 .btn:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(24,54,75,.12);
 }
 
 .btn:active {
@@ -237,28 +239,29 @@ img {
 }
 
 .btn-primary {
-    background: var(--blue);
+    background: linear-gradient(135deg, #287da5, #183f60);
     color: white;
 }
 
 .btn-primary:hover {
-    background: var(--navy);
+    background: linear-gradient(135deg, #21698d, #102f49);
 }
 
 .btn-outline {
     background: white;
-    border: 1px solid var(--line);
-    color: var(--ink);
+    border: 1px solid #d5e0e7;
+    color: var(--navy);
 }
 
 .btn-outline:hover {
     background: var(--blue-soft);
-    border-color: #cbdce4;
+    border-color: var(--blue);
     color: var(--blue);
 }
 
 .btn-add-top {
-    min-height: 43px;
+    min-height: 44px;
+    padding: 12px 20px;
 }
 
 /* Botão de exclusão */
@@ -845,7 +848,7 @@ img {
 .progress-track span {
     height: 100%;
     display: block;
-    background: var(--blue);
+    background: linear-gradient(90deg, #287da5, #183f60);
     border-radius: 20px;
     transition: width .25s;
 }
@@ -915,6 +918,23 @@ img {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+/* Logo da CCB no estado vazio */
+
+.empty-state-main::before {
+    content: "";
+    display: block;
+
+    width: 240px;
+    height: 150px;
+
+    margin: 0 auto 22px;
+
+    background-image: url("./Logoccb.avif");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
 }
 
 .empty-state-main > i {
@@ -1118,7 +1138,7 @@ dialog form {
 ========================================= */
 
 .filters {
-    display: grid; /* Define a grid layout */
+    display: grid;
     grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(150px, 1fr));
     gap: 10px;
     padding: 18px 22px;
@@ -1490,7 +1510,237 @@ dialog form {
 }
 
 /* =========================================
-   34. RESPONSIVIDADE - TABLET
+   34. LOGO CCB - PAINEL CENTRAL
+========================================= */
+
+.central-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 22px;
+}
+
+.hero-apresentacao {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    min-width: 0;
+}
+
+.logo-ccb {
+    display: block;
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+.hero-texto {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.hero-texto .eyebrow {
+    margin-bottom: 2px;
+}
+
+.hero-texto h2 {
+    margin: 3px 0;
+    font-size: 27px;
+    color: var(--navy);
+}
+
+.hero-texto .muted {
+    line-height: 1.6;
+    font-size: 13px;
+}
+
+/* =========================================
+   35. MENU DE OPÇÕES DAS ORDENS DE SERVIÇO
+========================================= */
+
+.actions-col {
+    position: relative;
+    text-align: center;
+    width: 90px;
+}
+
+.os-menu-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Botão de três pontos */
+
+.btn-opcoes-os {
+    width: 40px;
+    height: 40px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #dbe4f0;
+    border-radius: 12px;
+
+    background: linear-gradient(145deg, #ffffff, #edf3ff);
+    color: #2458c5;
+
+    font-size: 27px;
+    font-weight: 800;
+    line-height: 1;
+
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(37, 99, 235, .10);
+
+    transition: all .25s ease;
+}
+
+.btn-opcoes-os:hover,
+.btn-opcoes-os[aria-expanded="true"] {
+    background: linear-gradient(135deg, #2563eb, #1746b5);
+    color: #ffffff;
+    border-color: #2563eb;
+
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(37, 99, 235, .28);
+}
+
+/* Menu suspenso */
+
+.os-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+
+    width: 190px;
+    padding: 7px;
+
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+
+    box-shadow: 0 12px 30px rgba(15, 23, 42, .18);
+
+    z-index: 1000;
+    text-align: left;
+
+    animation: aparecerMenuOS .18s ease;
+}
+
+.os-dropdown[hidden] {
+    display: none !important;
+}
+
+@keyframes aparecerMenuOS {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Itens do menu */
+
+.os-dropdown-item {
+    width: 100%;
+    min-height: 42px;
+
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 10px 12px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: transparent;
+    color: #334155;
+
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.os-dropdown-item span {
+    width: 22px;
+    height: 22px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 7px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+/* Visualizar */
+
+.os-dropdown-item[data-acao="visualizar"] {
+    color: #1d4ed8;
+}
+
+.os-dropdown-item[data-acao="visualizar"] span {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.os-dropdown-item[data-acao="visualizar"]:hover {
+    background: #eff6ff;
+}
+
+/* Editar */
+
+.os-dropdown-item[data-acao="editar"] {
+    color: #b45309;
+}
+
+.os-dropdown-item[data-acao="editar"] span {
+    background: #ffedd5;
+    color: #c2410c;
+}
+
+.os-dropdown-item[data-acao="editar"]:hover {
+    background: #fff7ed;
+}
+
+/* Excluir */
+
+.os-dropdown-item.excluir {
+    color: #dc2626;
+}
+
+.os-dropdown-item.excluir span {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.os-dropdown-item.excluir:hover {
+    background: #fef2f2;
+}
+
+/* Acessibilidade */
+
+.btn-opcoes-os:focus-visible,
+.os-dropdown-item:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 2px;
+}
+
+/* =========================================
+   36. RESPONSIVIDADE - TABLET
 ========================================= */
 
 @media (max-width: 1100px) {
@@ -1507,11 +1757,10 @@ dialog form {
     .detail-info-grid {
         grid-template-columns: 1fr;
     }
-
 }
 
 /* =========================================
-   35. RESPONSIVIDADE - TABLET MENOR
+   37. RESPONSIVIDADE - TABLET MENOR
 ========================================= */
 
 @media (max-width: 1050px) {
@@ -1523,7 +1772,6 @@ dialog form {
     .filters .search {
         grid-column: 1 / -1;
     }
-
 }
 
 @media (max-width: 900px) {
@@ -1532,11 +1780,10 @@ dialog form {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
     }
-
 }
 
 /* =========================================
-   36. RESPONSIVIDADE - CELULAR
+   38. RESPONSIVIDADE - CELULAR
 ========================================= */
 
 @media (max-width: 760px) {
@@ -1572,6 +1819,25 @@ dialog form {
 
     .hero h2 {
         font-size: 25px;
+    }
+
+    .central-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .hero-apresentacao {
+        width: 100%;
+        gap: 15px;
+    }
+
+    .logo-ccb {
+    width: 120px;
+    height: 120px;
+}
+
+    .hero-texto h2 {
+        font-size: 22px;
     }
 
     .central-hero .btn-add-top {
@@ -1764,10 +2030,23 @@ dialog form {
         justify-content: center;
     }
 
+    .btn-opcoes-os {
+        width: 42px;
+        height: 42px;
+    }
+
+    .os-dropdown {
+        width: 185px;
+    }
+
+    .os-dropdown-item {
+        min-height: 46px;
+        font-size: 14px;
+    }
 }
 
 /* =========================================
-   37. RESPONSIVIDADE - CELULARES PEQUENOS
+   39. RESPONSIVIDADE - CELULARES PEQUENOS
 ========================================= */
 
 @media (max-width: 420px) {
@@ -1837,10 +2116,26 @@ dialog form {
         -webkit-overflow-scrolling: touch;
     }
 
+    .hero-apresentacao {
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .logo-ccb {
+        width: 100px;
+        height: 100px;
+    }
 }
 
+    .hero-texto h2 {
+        font-size: 19px;
+    }
+
+    .hero-texto .muted {
+        font-size: 11px;
+    }
 /* =========================================
-   38. IMPRESSÃO - PAINEL CENTRAL
+   40. IMPRESSÃO - PAINEL CENTRAL
 ========================================= */
 
 @media print {
@@ -1896,11 +2191,10 @@ dialog form {
         margin-bottom: 9px;
         height: 1px;
     }
-
 }
 
 /* =========================================
-   39. IMPRESSÃO - ORDENS DE SERVIÇO
+   41. IMPRESSÃO - ORDENS DE SERVIÇO
 ========================================= */
 
 @media print {
@@ -2007,387 +2301,4 @@ dialog form {
         border-top: 1px solid #222;
         margin-bottom: 9px;
     }
-
-}
-
-
-/* =====================================================
-   MENU DE OPÇÕES DAS ORDENS DE SERVIÇO
-===================================================== */
-
-.actions-col {
-    position: relative;
-    text-align: center;
-    width: 90px;
-}
-
-.os-menu-container {
-    position: relative;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Botão de três pontos */
-
-.btn-opcoes-os {
-    width: 38px;
-    height: 38px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid var(--bd, #e3e8f0);
-    border-radius: 10px;
-
-    background: var(--card, #fff);
-    color: var(--tx, #202938);
-
-    font-size: 25px;
-    font-weight: bold;
-    line-height: 1;
-
-    cursor: pointer;
-    transition: .2s ease;
-}
-
-.btn-opcoes-os:hover,
-.btn-opcoes-os[aria-expanded="true"] {
-    background: var(--acs, #edf2ff);
-    color: var(--ac, #315fcb);
-    border-color: var(--ac, #315fcb);
-}
-
-/* Menu suspenso */
-
-.os-dropdown {
-    position: absolute;
-    top: calc(100% + 7px);
-    right: 0;
-
-    width: 175px;
-    padding: 6px;
-
-    background: var(--card, #fff);
-    border: 1px solid var(--bd, #e3e8f0);
-    border-radius: 12px;
-
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .14);
-
-    z-index: 1000;
-    text-align: left;
-}
-
-.os-dropdown[hidden] {
-    display: none !important;
-}
-
-/* Itens do menu */
-
-.os-dropdown-item {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    padding: 11px 12px;
-
-    border: none;
-    border-radius: 8px;
-
-    background: transparent;
-    color: var(--tx, #202938);
-
-    font-size: 13px;
-    font-weight: 600;
-    text-align: left;
-
-    cursor: pointer;
-    transition: .2s ease;
-}
-
-.os-dropdown-item span {
-    width: 18px;
-    text-align: center;
-    font-size: 16px;
-}
-
-.os-dropdown-item:hover {
-    background: var(--acs, #edf2ff);
-    color: var(--ac, #315fcb);
-}
-
-/* Opção excluir */
-
-.os-dropdown-item.excluir {
-    color: #dc3545;
-}
-
-.os-dropdown-item.excluir:hover {
-    background: #fff0f0;
-    color: #c82333;
-}
-
-/* Acessibilidade */
-
-.btn-opcoes-os:focus-visible,
-.os-dropdown-item:focus-visible {
-    outline: 2px solid var(--ac, #315fcb);
-    outline-offset: 2px;
-}
-
-
-/* =====================================================
-   MENU PROFISSIONAL DE OPÇÕES DAS ORDENS DE SERVIÇO
-===================================================== */
-
-.actions-col {
-    position: relative;
-    text-align: center;
-    width: 90px;
-}
-
-.os-menu-container {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* BOTÃO PRINCIPAL - TRÊS PONTOS */
-
-.btn-opcoes-os {
-    width: 40px;
-    height: 40px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid #dbe4f0;
-    border-radius: 12px;
-
-    background: linear-gradient(145deg, #ffffff, #edf3ff);
-    color: #2458c5;
-
-    font-size: 27px;
-    font-weight: 800;
-
-    cursor: pointer;
-    box-shadow: 0 3px 8px rgba(37, 99, 235, .10);
-
-    transition: all .25s ease;
-}
-
-.btn-opcoes-os:hover,
-.btn-opcoes-os[aria-expanded="true"] {
-    background: linear-gradient(135deg, #2563eb, #1746b5);
-    color: #ffffff;
-    border-color: #2563eb;
-
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(37, 99, 235, .28);
-}
-
-/* MENU SUSPENSO */
-
-.os-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-
-    width: 190px;
-    padding: 7px;
-
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-
-    box-shadow: 0 12px 30px rgba(15, 23, 42, .18);
-
-    z-index: 1000;
-    text-align: left;
-
-    animation: aparecerMenuOS .18s ease;
-}
-
-.os-dropdown[hidden] {
-    display: none !important;
-}
-
-@keyframes aparecerMenuOS {
-    from {
-        opacity: 0;
-        transform: translateY(-6px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* BOTÕES INTERNOS */
-
-.os-dropdown-item {
-    width: 100%;
-    min-height: 42px;
-
-    display: flex;
-    align-items: center;
-    gap: 11px;
-
-    padding: 10px 12px;
-
-    border: none;
-    border-radius: 9px;
-
-    background: transparent;
-    color: #334155;
-
-    font-size: 13px;
-    font-weight: 700;
-    text-align: left;
-
-    cursor: pointer;
-    transition: all .2s ease;
-}
-
-.os-dropdown-item span {
-    width: 22px;
-    height: 22px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 7px;
-    font-size: 15px;
-    font-weight: bold;
-}
-
-/* VISUALIZAR - AZUL */
-
-.os-dropdown-item[data-acao="visualizar"] {
-    color: #1d4ed8;
-}
-
-.os-dropdown-item[data-acao="visualizar"] span {
-    background: #dbeafe;
-    color: #1d4ed8;
-}
-
-.os-dropdown-item[data-acao="visualizar"]:hover {
-    background: #eff6ff;
-}
-
-/* EDITAR - LARANJA */
-
-.os-dropdown-item[data-acao="editar"] {
-    color: #b45309;
-}
-
-.os-dropdown-item[data-acao="editar"] span {
-    background: #ffedd5;
-    color: #c2410c;
-}
-
-.os-dropdown-item[data-acao="editar"]:hover {
-    background: #fff7ed;
-}
-
-/* EXCLUIR - VERMELHO */
-
-.os-dropdown-item.excluir {
-    color: #dc2626;
-}
-
-.os-dropdown-item.excluir span {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-.os-dropdown-item.excluir:hover {
-    background: #fef2f2;
-}
-
-/* FOCO PELO TECLADO */
-
-.btn-opcoes-os:focus-visible,
-.os-dropdown-item:focus-visible {
-    outline: 3px solid #93c5fd;
-    outline-offset: 2px;
-}
-
-/* CELULAR */
-
-@media (max-width: 768px) {
-    .btn-opcoes-os {
-        width: 42px;
-        height: 42px;
-    }
-
-    .os-dropdown {
-        width: 185px;
-    }
-
-    .os-dropdown-item {
-        min-height: 46px;
-        font-size: 14px;
-    }
-}
-/* LOGOTIPO CCB NA TELA INICIAL */
-
-.empty-state-main::before {
-    content: "";
-    display: block;
-
-    width: 280px;
-    height: 180px;
-
-    margin: 0 auto 25px;
-
-    background-image: url("https://raw.githubusercontent.com/msduarte35/ordem_de_servi-o-ccb/main/Logoccb.avif");
-
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-}
-
-/* =========================================
-   LOGO CCB - PAINEL CENTRAL
-========================================= */
-
-.hero-apresentacao {
-    display: flex;
-    align-items: center;
-    gap: 22px;
-}
-
-.logo-ccb {
-    width: 100px;
-    height: 100px;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-.hero-texto {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-@media (max-width: 600px) {
-
-    .hero-apresentacao {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-
-    .logo-ccb {
-        width: 85px;
-        height: 85px;
-    }
-
 }

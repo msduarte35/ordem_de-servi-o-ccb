@@ -1,7 +1,8 @@
+
 /* =========================================================
    CONTROLE DE MANUTENÇÃO CCB
    PAINEL CENTRAL + CONGREGAÇÕES + ORDENS DE SERVIÇO
-   BACKUP E RESTAURAÇÃO
+   ATA + BACKUP E RESTAURAÇÃO
 
    - Menu lateral de congregações.
    - Indicadores individuais e gerais.
@@ -10,6 +11,7 @@
    - Visualização, edição e exclusão de OS.
    - Pesquisa e filtros.
    - Exportação CSV e impressão.
+   - ATA de reunião preventiva.
    - Backup e restauração.
    - Preservação dos dados existentes.
 ========================================================= */
@@ -62,12 +64,6 @@ const IGREJAS_INICIAIS = [
 
 /* =========================================================
    3. ORDENS INICIAIS DA CENTRAL
-
-   Serão utilizadas somente se:
-   - A chave da Central ainda não existir;
-   - Não houver ordens antigas para migrar.
-
-   Nunca substituem dados já existentes.
 ========================================================= */
 
 const DADOS_INICIAIS_CENTRAL = [
@@ -236,7 +232,6 @@ function carregarOrdens(idIgreja) {
         return dados.map((ordem, indice) => normalizarOrdem(ordem, indice));
     }
 
-    // Compatibilidade com backups/formatos antigos.
     const lista = obterListaOrdens(dados);
     return lista.map((ordem, indice) => normalizarOrdem(ordem, indice));
 }
@@ -248,14 +243,11 @@ function salvarOrdens(id, lista) {
 
 /* =========================================================
    6. MIGRAÇÃO DA CENTRAL
-
-   Executada antes de carregar a página individual.
 ========================================================= */
 
 function migrarDadosAntigos() {
     const chaveCentral = obterChaveIgreja(ID_CENTRAL);
 
-    // Se a chave já existe, inclusive vazia, não substitui.
     if (localStorage.getItem(chaveCentral) !== null) {
         console.info("Dados da Central já existentes. Preservados.");
         return;
@@ -306,7 +298,6 @@ function obterIgrejaAtual() {
         if (encontrada) return encontrada;
     }
 
-    // Ao abrir igreja.html sem parâmetro, utiliza a Central.
     return igrejas.find(igreja =>
         String(igreja.id) === ID_CENTRAL
     ) || null;
@@ -322,7 +313,6 @@ document.addEventListener("DOMContentLoaded", iniciarSistema);
 function iniciarSistema() {
     igrejas = carregarIgrejas();
 
-    // A migração acontece antes da inicialização da página.
     migrarDadosAntigos();
 
     const pagina = obterPagina();
@@ -342,6 +332,8 @@ function iniciarPainel() {
     configurarModalIgreja();
     configurarPesquisaIgreja();
     configurarBackup();
+    configurarAta();
+
     atualizarResumoGeral();
     renderizarListaIgrejas();
     renderizarEstadoInicial();
@@ -466,6 +458,7 @@ function renderizarDetalhesIgreja() {
     ).length;
 
     const pendentes = total - concluidas;
+
     const percentual = total > 0
         ? Math.round((concluidas / total) * 100)
         : 0;
@@ -654,6 +647,7 @@ function cadastrarIgreja(evento) {
     fecharModalIgreja();
     atualizarResumoGeral();
     renderizarListaIgrejas();
+    preencherCongregacoesAta();
     selecionarIgreja(novaIgreja.id);
 
     alert("Congregação cadastrada com sucesso!");
@@ -673,7 +667,6 @@ function iniciarPaginaIgreja() {
         return;
     }
 
-    // Carrega novamente os dados da congregação identificada.
     ordens = carregarOrdens(igrejaSelecionada.id);
 
     atualizarIdentificacaoIgreja();
@@ -830,9 +823,7 @@ function visualizarOS(id) {
 
     $("tituloModal").textContent = `Visualizar OS nº ${os.numero}`;
 
-    // Desabilita os campos para impedir alterações acidentais.
     habilitarFormularioOS(false);
-
     abrirModalOS();
 }
 
@@ -1114,7 +1105,6 @@ function atualizarIndicadoresOS() {
     if ($("pendentes")) $("pendentes").textContent = pendentes;
 }
 
-
 function atualizarTabelaOS() {
     const tabela = $("tabelaOS");
     const vazio = $("vazio");
@@ -1223,9 +1213,8 @@ function atualizarTabelaOS() {
         tabela.appendChild(linha);
     });
 
-    // ABRIR E FECHAR O MENU DE OPÇÕES
+    // ABRIR E FECHAR MENU DE OPÇÕES
     tabela.querySelectorAll(".btn-opcoes-os").forEach(botao => {
-
         botao.addEventListener("click", evento => {
             evento.stopPropagation();
 
@@ -1237,7 +1226,6 @@ function atualizarTabelaOS() {
 
             const estavaAberto = menu && !menu.hidden;
 
-            // Fecha todos os outros menus
             tabela.querySelectorAll(".os-dropdown").forEach(item => {
                 item.hidden = true;
             });
@@ -1246,7 +1234,6 @@ function atualizarTabelaOS() {
                 item.setAttribute("aria-expanded", "false");
             });
 
-            // Abre o menu selecionado
             if (menu && !estavaAberto) {
                 menu.hidden = false;
                 botao.setAttribute("aria-expanded", "true");
@@ -1254,16 +1241,14 @@ function atualizarTabelaOS() {
         });
     });
 
-    // EXECUTAR AS AÇÕES
+    // EXECUTAR AS AÇÕES DOS MENUS
     tabela.querySelectorAll(".os-dropdown-item").forEach(botao => {
-
         botao.addEventListener("click", evento => {
             evento.stopPropagation();
 
             const id = botao.dataset.id;
             const acao = botao.dataset.acao;
 
-            // Fecha os menus
             tabela.querySelectorAll(".os-dropdown").forEach(item => {
                 item.hidden = true;
             });
@@ -1278,11 +1263,9 @@ function atualizarTabelaOS() {
         });
     });
 
-    // FECHAR MENU AO CLICAR FORA
+    // CONFIGURA UMA ÚNICA VEZ O FECHAMENTO DOS MENUS
     if (!document.body.dataset.menuOSConfigurado) {
-
         document.addEventListener("click", () => {
-
             document.querySelectorAll(".os-dropdown").forEach(menu => {
                 menu.hidden = true;
             });
@@ -1290,7 +1273,6 @@ function atualizarTabelaOS() {
             document.querySelectorAll(".btn-opcoes-os").forEach(botao => {
                 botao.setAttribute("aria-expanded", "false");
             });
-
         });
 
         document.body.dataset.menuOSConfigurado = "true";
@@ -1305,28 +1287,6 @@ function atualizarTabelaOS() {
         vazio.hidden = filtradas.length > 0;
     }
 }
-
-
-    tabela.querySelectorAll("button[data-acao]").forEach(botao => {
-        botao.addEventListener("click", () => {
-            const id = botao.dataset.id;
-            const acao = botao.dataset.acao;
-
-            if (acao === "visualizar") visualizarOS(id);
-            if (acao === "editar") editarOS(id);
-            if (acao === "excluir") excluirOS(id);
-        });
-    });
-
-    if ($("contadorLista")) {
-        $("contadorLista").textContent =
-            `${filtradas.length} ${filtradas.length === 1 ? "registro" : "registros"}`;
-    }
-
-    if (vazio) {
-        vazio.hidden = filtradas.length > 0;
-    }
-
 
 
 /* =========================================================
@@ -1393,7 +1353,266 @@ function exportarCSV() {
 
 
 /* =========================================================
-   24. BACKUP
+   24. ATA - REUNIÃO DE MANUTENÇÃO PREVENTIVA
+========================================================= */
+
+function configurarAta() {
+    const campoIgreja = $("ataIgreja");
+
+    // Não executa se a ATA não estiver presente nesta página.
+    if (!campoIgreja) return;
+
+    preencherCongregacoesAta();
+
+    if ($("ataData") && !$("ataData").value) {
+        $("ataData").value = dataHoje();
+    }
+
+    if ($("ataMes") && !$("ataMes").value) {
+        const meses = [
+            "Janeiro", "Fevereiro", "Março", "Abril",
+            "Maio", "Junho", "Julho", "Agosto",
+            "Setembro", "Outubro", "Novembro", "Dezembro"
+        ];
+
+        $("ataMes").value = meses[new Date().getMonth()];
+    }
+
+    if ($("ataAno") && !$("ataAno").value) {
+        $("ataAno").value = new Date().getFullYear();
+    }
+
+    [
+        "ataIgreja",
+        "ataData",
+        "ataHorario",
+        "ataMes",
+        "ataAno",
+        "ataParticipantes"
+    ].forEach(id => {
+        const campo = $(id);
+
+        if (campo) {
+            campo.addEventListener("input", atualizarPreviaAta);
+            campo.addEventListener("change", atualizarPreviaAta);
+        }
+    });
+
+    $("btnImprimirAta")?.addEventListener("click", imprimirAta);
+
+    atualizarPreviaAta();
+}
+
+
+/* =========================================================
+   PREENCHER CONGREGAÇÕES NA ATA
+========================================================= */
+
+function preencherCongregacoesAta() {
+    const campo = $("ataIgreja");
+    if (!campo) return;
+
+    const valorAnterior = campo.value;
+
+    campo.innerHTML = "";
+
+    const opcaoInicial = document.createElement("option");
+    opcaoInicial.value = "";
+    opcaoInicial.textContent = "Selecione a congregação";
+
+    campo.appendChild(opcaoInicial);
+
+    igrejas.forEach(igreja => {
+        const opcao = document.createElement("option");
+
+        opcao.value = String(igreja.id);
+        opcao.textContent =
+            `${igreja.nome} (${igreja.codigo || igreja.id})`;
+
+        campo.appendChild(opcao);
+    });
+
+    if (igrejas.some(igreja =>
+        String(igreja.id) === valorAnterior
+    )) {
+        campo.value = valorAnterior;
+    } else if (igrejaSelecionada) {
+        campo.value = String(igrejaSelecionada.id);
+    }
+}
+
+
+/* =========================================================
+   ATUALIZAR PRÉVIA DA ATA
+========================================================= */
+
+function atualizarPreviaAta() {
+    const campoIgreja = $("ataIgreja");
+    if (!campoIgreja) return;
+
+    const idIgreja = campoIgreja.value;
+    const data = $("ataData")?.value || "";
+    const horario = $("ataHorario")?.value || "";
+    const mes = $("ataMes")?.value || "";
+    const ano = $("ataAno")?.value || "";
+    const participantes = $("ataParticipantes")?.value || "";
+
+    const igreja = igrejas.find(item =>
+        String(item.id) === String(idIgreja)
+    );
+
+    if ($("ataPrintData")) {
+        $("ataPrintData").textContent =
+            data ? formatarData(data) : "____ / ____ / ______";
+    }
+
+    if ($("ataPrintHorario")) {
+        $("ataPrintHorario").textContent = horario || "______";
+    }
+
+    if ($("ataPrintIgreja")) {
+        $("ataPrintIgreja").textContent =
+            igreja ? igreja.nome : "________________________";
+    }
+
+    if ($("ataPrintMes")) {
+        $("ataPrintMes").textContent = mes || "____________";
+    }
+
+    if ($("ataPrintAno")) {
+        $("ataPrintAno").textContent = ano || "________";
+    }
+
+    if ($("ataPrintParticipantes")) {
+        $("ataPrintParticipantes").textContent =
+            participantes.trim() ||
+            "__________________________________________";
+    }
+
+    atualizarOrdensAta(idIgreja, data);
+}
+
+
+/* =========================================================
+   BUSCAR ORDENS POR CONGREGAÇÃO E DATA DE ABERTURA
+========================================================= */
+
+function atualizarOrdensAta(idIgreja, data) {
+    const tabela = $("ataPrintOrdens");
+    if (!tabela) return;
+
+    tabela.innerHTML = "";
+
+    if (!idIgreja || !data) {
+        adicionarLinhaAta(
+            tabela,
+            "Selecione uma congregação e uma data para carregar as ordens.",
+            4
+        );
+        return;
+    }
+
+    const lista = carregarOrdens(idIgreja);
+
+    // Filtra exclusivamente pela data de abertura da OS.
+    const ordensDoDia = lista
+        .filter(os => os.dataAbertura === data)
+        .sort((a, b) => Number(a.numero) - Number(b.numero));
+
+    if (!ordensDoDia.length) {
+        adicionarLinhaAta(
+            tabela,
+            "Nenhuma ordem de serviço encontrada para esta congregação nesta data.",
+            4
+        );
+        return;
+    }
+
+    ordensDoDia.forEach(os => {
+        const linha = document.createElement("tr");
+
+        const dados = [
+            os.numero,
+            os.descricao,
+            os.responsavel || "-",
+            os.status || "-"
+        ];
+
+        dados.forEach(valor => {
+            const celula = document.createElement("td");
+            celula.textContent = String(valor ?? "-");
+            linha.appendChild(celula);
+        });
+
+        tabela.appendChild(linha);
+    });
+}
+
+
+/* =========================================================
+   LINHA DE MENSAGEM DA TABELA DA ATA
+========================================================= */
+
+function adicionarLinhaAta(tabela, mensagem, colunas) {
+    const linha = document.createElement("tr");
+    const celula = document.createElement("td");
+
+    celula.colSpan = colunas;
+    celula.textContent = mensagem;
+
+    linha.appendChild(celula);
+    tabela.appendChild(linha);
+}
+
+
+/* =========================================================
+   IMPRIMIR ATA
+========================================================= */
+
+function imprimirAta() {
+    const idIgreja = $("ataIgreja")?.value;
+    const data = $("ataData")?.value;
+    const mes = $("ataMes")?.value;
+    const ano = $("ataAno")?.value;
+
+    if (!idIgreja) {
+        alert("Selecione a congregação da reunião.");
+        $("ataIgreja")?.focus();
+        return;
+    }
+
+    if (!data) {
+        alert("Informe a data da reunião.");
+        $("ataData")?.focus();
+        return;
+    }
+
+    if (!mes) {
+        alert("Selecione o mês de competência.");
+        $("ataMes")?.focus();
+        return;
+    }
+
+    if (!ano || Number(ano) < 2020 || Number(ano) > 2100) {
+        alert("Informe um ano válido para a competência.");
+        $("ataAno")?.focus();
+        return;
+    }
+
+    atualizarPreviaAta();
+
+    document.body.classList.add("imprimindo-ata");
+
+    window.addEventListener("afterprint", function limparImpressaoAta() {
+        document.body.classList.remove("imprimindo-ata");
+    }, { once: true });
+
+    window.print();
+}
+
+
+/* =========================================================
+   25. BACKUP
 ========================================================= */
 
 function pertenceAoSistema(chave) {
@@ -1613,6 +1832,10 @@ function restaurarBackup(backup) {
 
                 renderizarDetalhesIgreja();
             }
+
+            // Atualiza a lista de congregações da ATA após a restauração.
+            preencherCongregacoesAta();
+            atualizarPreviaAta();
         }
 
         if (obterPagina() === "igreja") {
@@ -1651,7 +1874,7 @@ function restaurarBackup(backup) {
 
 
 /* =========================================================
-   25. FINALIZAÇÃO
+   26. FINALIZAÇÃO
 ========================================================= */
 
 console.info("Controle de Manutenção CCB carregado.");

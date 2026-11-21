@@ -255,19 +255,22 @@ function obterPagina() {
 
 function obterIgrejaAtual() {
     const parametros = new URLSearchParams(window.location.search);
+
     const id = parametros.get("igreja") || parametros.get("id");
 
+    // Se existe um código na URL, procura exatamente essa congregação.
     if (id) {
-        const encontrada = igrejas.find(igreja =>
+        return igrejas.find(igreja =>
             String(igreja.id) === String(id)
-        );
-        if (encontrada) return encontrada;
+        ) || null;
     }
 
+    // Sem código na URL, abre a Central.
     return igrejas.find(igreja =>
         String(igreja.id) === ID_CENTRAL
     ) || null;
 }
+
 
 /* =========================================================
    8. INICIALIZAÇÃO
@@ -386,17 +389,20 @@ function renderizarListaIgrejas() {
     });
 }
 
+
 function selecionarIgreja(id) {
-    igrejaSelecionada = igrejas.find(igreja =>
-        String(igreja.id) === String(id)
+    const igreja = igrejas.find(item =>
+        String(item.id) === String(id)
     );
 
-    if (!igrejaSelecionada) return;
+    if (!igreja) {
+        alert("Congregação não encontrada. Verifique o código informado.");
+        return;
+    }
 
-    renderizarListaIgrejas();
-    renderizarDetalhesIgreja();
+    window.location.href =
+        `igreja.html?igreja=${encodeURIComponent(igreja.id)}`;
 }
-
 /* =========================================================
    11. DETALHES DA CONGREGAÇÃO
 ========================================================= */
@@ -624,11 +630,15 @@ function cadastrarIgreja(evento) {
    13. PÁGINA INDIVIDUAL DA CONGREGAÇÃO
 ========================================================= */
 
+
 function iniciarPaginaIgreja() {
+    igrejas = carregarIgrejas();
+
     igrejaSelecionada = obterIgrejaAtual();
 
     if (!igrejaSelecionada) {
-        alert("Congregação não encontrada.");
+        alert("Congregação não encontrada. Verifique o código informado.");
+
         window.location.href = "index.html";
         return;
     }
@@ -636,26 +646,19 @@ function iniciarPaginaIgreja() {
     ordens = carregarOrdens(igrejaSelecionada.id);
 
     atualizarIdentificacaoIgreja();
+
     configurarFormularioOS();
     configurarFiltrosOS();
     configurarBotoesOS();
-
-    // A ATA só é inicializada nesta página.
     configurarAtaIgreja();
 
     atualizarTelaOS();
+
+    console.info("Congregação aberta:", igrejaSelecionada.nome);
+    console.info("Código:", igrejaSelecionada.id);
+    console.info("Ordens carregadas:", ordens.length);
 }
 
-function atualizarIdentificacaoIgreja() {
-    if ($("nomeIgreja")) {
-        $("nomeIgreja").textContent = igrejaSelecionada.nome;
-    }
-
-    if ($("codigoIgreja")) {
-        $("codigoIgreja").textContent =
-            `${igrejaSelecionada.codigo || igrejaSelecionada.id} • ${igrejaSelecionada.descricao || ""}`;
-    }
-}
 
 /* =========================================================
    14. FORMULÁRIO DE ORDEM DE SERVIÇO

@@ -2336,16 +2336,19 @@ dialog form {
         font-size: 14px;
     }
 }
- .boas-vindas::before {
+/* LOGOTIPO CCB NA TELA INICIAL */
+
+.empty-state-main::before {
     content: "";
     display: block;
 
-    width: 260px;
-    height: 150px;
+    width: 280px;
+    height: 180px;
 
     margin: 0 auto 25px;
 
-    background-image: url("https://raw.githubusercontent.com/msduarte35/ordem_de-servi-o-ccb/refs/heads/main/Logoccb.avif");
+    background-image: url("https://raw.githubusercontent.com/msduarte35/ordem_de_servi-o-ccb/main/Logoccb.avif");
+
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;

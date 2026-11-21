@@ -922,19 +922,23 @@ img {
 
 /* Logo da CCB no estado vazio */
 
+/* LOGO CCB - SEÇÃO DE BOAS-VINDAS */
+
 .empty-state-main::before {
     content: "";
     display: block;
 
-    width: 240px;
-    height: 150px;
+    width: 600px !important; /* Ajuste para telas maiores */
+    height: 400px !important; /* Ajuste para telas maiores */
 
-    margin: 0 auto 22px;
+    max-width: 100%; /* Garantir que não ultrapasse a largura da tela */
 
-    background-image: url("./Logoccb.avif");
-    background-repeat: no-repeat;
+    margin: 0 auto 25px; /* Centralizar e adicionar espaçamento inferior */
+
+    background-image: url("./Logoccb.avif"); /* Logo da CCB */
+    background-repeat: no-repeat; /* Não repetir a imagem */
     background-position: center;
-    background-size: contain;
+    background-size: contain; /* Ajustar a imagem para caber no container */
 }
 
 .empty-state-main > i {
@@ -1529,11 +1533,19 @@ dialog form {
 }
 
 .logo-ccb {
-    display: block;
-    width: 160px;
-    height: 160px;
-    object-fit: contain;
-    flex-shrink: 0;
+    display: block !important; /* Garantir que o logo seja exibido como bloco */
+    width: 280px !important; /* Definir largura fixa */
+    height: 280px !important; /* Definir altura fixa */
+
+    max-width: none !important; /* Remover limite de largura */
+    max-height: none !important; /* Remover limite de altura */
+
+    object-fit: contain; /* Garantir que a imagem se ajuste ao contêiner */
+    flex: 0 0 280px !important; /* Garantir que o contêiner flex tenha tamanho fixo */
+
+    background: transparent !important; /* Garantir fundo transparente */
+    border: none !important; /* Remover borda */
+    box-shadow: none !important; /* Remover sombra */
 }
 .hero-texto {
     display: flex;
@@ -1788,6 +1800,11 @@ dialog form {
 
 @media (max-width: 760px) {
 
+    .empty-state-main::before {/* Ajuste para telas menores */
+    width: 280px !important;/* Ajuste para telas menores */
+    height: 220px !important;/* Ajuste para telas menores */
+}
+
     .topbar {
         padding: 12px 16px;
         min-height: 72px;
@@ -1832,8 +1849,9 @@ dialog form {
     }
 
     .logo-ccb {
-    width: 120px;
-    height: 120px;
+    width: 150px !important;
+    height: 150px !important;
+    flex: 0 0 150px !important;
 }
 
     .hero-texto h2 {
@@ -2051,6 +2069,21 @@ dialog form {
 
 @media (max-width: 420px) {
 
+    .empty-state-main::before {/* Ajuste para celulares pequenos */
+    width: 220px !important;/* Ajuste para celulares pequenos */
+    height: 180px !important; /* Ajuste para celulares pequenos */
+}
+
+
+
+
+    .empty-state-main::before {
+    width: 220px !important;
+    height: 180px !important;
+    }
+
+
+
     .topbar {
         align-items: flex-start;
     }
@@ -2122,9 +2155,10 @@ dialog form {
     }
 
     .logo-ccb {
-        width: 100px;
-        height: 100px;
-    }
+    width: 120px !important;
+    height: 120px !important;
+    flex: 0 0 120px !important;
+}
 }
 
     .hero-texto h2 {

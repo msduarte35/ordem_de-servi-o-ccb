@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -7,496 +5,263 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#18364b">
-
-    <meta
-        name="description"
-        content="Sistema de controle de manutenção das congregações da Congregação Cristã no Brasil."
-    >
-
-    <title>Controle de Manutenção | Painel Central</title>
-
+    <meta name="description" content="Detalhes e ordens de serviço da congregação.">
+    <title>Controle de Manutenção | Congregação</title>
     <link rel="stylesheet" href="./style.css">
-
     <script src="./script.js" defer></script>
 </head>
 
-<body data-page="painel">
+<body data-page="igreja">
 
-    <!-- =================================================
-         CABEÇALHO
-    ================================================== -->
+    <!-- CABEÇALHO -->
 
     <header class="topbar">
-
-        <a
-            class="brand brand-link"
-            href="index.html"
-            aria-label="Página inicial do Controle de Manutenção"
-        >
-
-            <div class="brand-mark" aria-hidden="true">
-                OS
-            </div>
-
+        <a class="brand brand-link" href="./index.html" aria-label="Voltar para o Painel Central">
+            <div class="brand-mark" aria-hidden="true">OS</div>
             <div>
-
-                <span class="eyebrow">
-                    CONGREGAÇÃO CRISTÃ NO BRASIL
-                </span>
-
+                <span class="eyebrow">CONGREGAÇÃO CRISTÃ NO BRASIL</span>
                 <h1>Controle de Manutenção</h1>
-
             </div>
-
         </a>
-
         <div class="topbar-tag">
-
             <span class="online-dot" aria-hidden="true"></span>
-
-            Painel central
-
+            Detalhes da congregação
         </div>
-
     </header>
-
-
-    <!-- =================================================
-         CONTEÚDO PRINCIPAL
-    ================================================== -->
 
     <main class="container central-container">
 
-
-        <!-- =================================================
-             APRESENTAÇÃO
-        ================================================== -->
+        <!-- VOLTAR + TÍTULO -->
 
         <section class="hero central-hero">
-
             <div class="hero-apresentacao">
-
-                <img
-                    src="./Logoccb.avif"
-                    alt="Logo da Congregação Cristã no Brasil"
-                    class="logo-ccb"
-                >
-
+                <img src="./Logoccb.avif" alt="Logo da Congregação Cristã no Brasil" class="logo-ccb" onerror="this.style.display='none'">
                 <div class="hero-texto">
-
-                    <p class="eyebrow">
-                        GESTÃO DE SERVIÇOS
-                    </p>
-
-                    <h2>Painel de congregações</h2>
-
-                    <p class="muted">
-                        Gerencie as unidades e acompanhe os indicadores
-                        de manutenção.
-                    </p>
-
+                    <p class="eyebrow">UNIDADE SELECIONADA</p>
+                    <h2 id="nomeIgreja">Carregando...</h2>
+                    <p class="muted" id="infoIgreja">—</p>
                 </div>
-
             </div>
-
-            <button
-                class="btn btn-primary btn-add-top"
-                type="button"
-                id="btnNovaIgrejaTopo"
-            >
-
-                ＋ Cadastrar congregação
-
-            </button>
-
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <a class="btn btn-outline" href="./index.html">← Voltar</a>
+                <button class="btn btn-primary" type="button" id="btnNovaOS">＋ Nova OS</button>
+            </div>
         </section>
 
+        <!-- INDICADORES -->
 
-        <!-- =================================================
-             INDICADORES GERAIS
-        ================================================== -->
-
-        <section
-            class="stats stats-central"
-            aria-label="Resumo geral das manutenções"
-        >
-
+        <section class="stats stats-central" aria-label="Resumo da congregação">
             <article class="stat-card">
-
-                <span>Congregações cadastradas</span>
-
-                <strong id="totalIgrejas">11</strong>
-
-            </article>
-
-
-            <article class="stat-card">
-
                 <span>Total de OS</span>
-
-                <strong id="totalOSGeral">0</strong>
-
+                <strong id="totalOS">0</strong>
             </article>
-
-
             <article class="stat-card">
-
                 <span>Concluídas</span>
-
-                <strong id="concluidasGeral">0</strong>
-
+                <strong id="concluidas">0</strong>
             </article>
-
-
             <article class="stat-card">
-
                 <span>Pendentes</span>
-
-                <strong id="pendentesGeral">0</strong>
-
+                <strong id="pendentes">0</strong>
             </article>
-
+            <article class="stat-card">
+                <span>Em andamento</span>
+                <strong id="andamento">0</strong>
+            </article>
         </section>
 
+        <!-- FILTRO + LISTA -->
 
-        <!-- =================================================
-             BACKUP E RESTAURAÇÃO
-        ================================================== -->
-
-        <section
-            class="backup-card"
-            aria-label="Backup e restauração dos dados"
-        >
-
-            <div
-                class="backup-icon"
-                aria-hidden="true"
-            >
-                ⇄
-            </div>
-
-
-            <div class="backup-content">
-
-                <span class="eyebrow">
-                    SEGURANÇA DOS DADOS
-                </span>
-
-                <h3>Backup e restauração</h3>
-
-                <p>
-                    Exporte os registros de manutenção para transferir
-                    as informações para outro computador ou celular.
-                </p>
-
-                <small
-                    id="backupStatus"
-                    aria-live="polite"
-                >
-                    Último backup: gere um arquivo para salvar seus dados.
-                </small>
-
-                <small class="backup-info">
-
-                    <strong>Importante:</strong>
-
-                    a transferência é manual e não sincroniza
-                    os dispositivos automaticamente.
-
-                </small>
-
-            </div>
-
-
-            <div class="backup-actions">
-
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    id="btnGerarBackup"
-                >
-
-                    ↓ Gerar backup
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="btn btn-outline"
-                    id="btnRestaurarBackup"
-                >
-
-                    ↑ Restaurar backup
-
-                </button>
-
-
-                <input
-                    type="file"
-                    id="arquivoBackup"
-                    accept=".json,application/json"
-                    aria-label="Selecionar arquivo de backup"
-                    hidden
-                >
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             ÁREA PRINCIPAL
-        ================================================== -->
-
-        <section class="central-workspace">
-
-
-            <!-- =============================================
-                 MENU LATERAL
-            ============================================== -->
-
-            <aside
-                class="church-sidebar"
-                aria-label="Menu de congregações"
-            >
-
-                <div class="sidebar-heading">
-
-                    <div>
-
-                        <p class="eyebrow">
-                            UNIDADES
-                        </p>
-
-                        <h3>Congregações</h3>
-
-                    </div>
-
-                    <span
-                        class="sidebar-total"
-                        id="totalIgrejasMenu"
-                    >
-                        11
-                    </span>
-
-                </div>
-
-
-                <!-- PESQUISA -->
-
-                <label class="search sidebar-search">
-
+        <section class="panel" style="background:#fff;border:1px solid #dfe5ea;border-radius:14px;padding:16px">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+                <h3 style="margin:0">Ordens de serviço</h3>
+                <label class="search" style="margin:0;min-width:240px;flex:1;max-width:380px">
                     <span aria-hidden="true">⌕</span>
-
-                    <input
-                        type="search"
-                        id="buscaIgreja"
-                        placeholder="Buscar congregação..."
-                        autocomplete="off"
-                        aria-label="Buscar congregação"
-                    >
-
+                    <input type="search" id="buscaOS" placeholder="Buscar OS..." autocomplete="off" aria-label="Buscar OS">
                 </label>
+                <select id="filtroStatus" aria-label="Filtrar por status" style="padding:10px;border:1px solid #dfe5ea;border-radius:10px">
+                    <option value="">Todos os status</option>
+                    <option value="pendente">Pendente</option>
+                    <option value="andamento">Em andamento</option>
+                    <option value="concluida">Concluída</option>
+                </select>
+            </div>
 
-
-                <!-- LISTA DINÂMICA DE CONGREGAÇÕES -->
-
-                <nav
-                    class="church-nav"
-                    id="listaIgrejas"
-                    aria-live="polite"
-                    aria-label="Lista de congregações"
-                >
-
-                    <!-- Conteúdo gerado pelo JavaScript -->
-
-                </nav>
-
-
-                <!-- CADASTRAR CONGREGAÇÃO -->
-
-                <button
-                    class="btn btn-outline btn-new-sidebar"
-                    type="button"
-                    id="btnNovaIgreja"
-                >
-
-                    ＋ Nova congregação
-
-                </button>
-
-            </aside>
-
-
-            <!-- =============================================
-                 PAINEL DE INFORMAÇÕES
-            ============================================== -->
-
-            <section
-                class="church-details panel"
-                aria-label="Detalhes da congregação selecionada"
-                aria-live="polite"
-            >
-
-                <div id="detalhesIgreja">
-
-                    <!-- Informações inseridas pelo JavaScript -->
-
-                </div>
-
-            </section>
-
+            <div id="listaOS" aria-live="polite" style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+                <!-- Gerado pelo JS -->
+            </div>
         </section>
-
-
-        <!-- =================================================
-             RODAPÉ
-        ================================================== -->
 
         <footer class="footer-note">
-
             Painel central • Controle local de ordens de serviço
-
         </footer>
 
     </main>
 
+    <!-- MODAL NOVA OS -->
 
-    <!-- =================================================
-         MODAL DE CADASTRO DE CONGREGAÇÃO
-    ================================================== -->
-
-    <dialog
-        id="modalIgreja"
-        class="modal-church"
-        aria-labelledby="tituloModalIgreja"
-    >
-
-        <form id="formIgreja">
-
-
-            <!-- CABEÇALHO DO MODAL -->
-
+    <dialog id="modalOS" class="modal-church" aria-labelledby="tituloModalOS">
+        <form id="formOS" method="dialog">
             <div class="modal-header">
-
                 <div>
-
-                    <p class="eyebrow">
-                        CADASTRO DE UNIDADE
-                    </p>
-
-                    <h3 id="tituloModalIgreja">
-                        Nova congregação
-                    </h3>
-
-                    <p class="muted small">
-                        Preencha os dados para adicionar uma unidade
-                        ao menu lateral.
-                    </p>
-
+                    <p class="eyebrow">NOVA ORDEM DE SERVIÇO</p>
+                    <h3 id="tituloModalOS">Nova OS</h3>
+                    <p class="muted small">Descreva o serviço que precisa ser feito.</p>
                 </div>
-
-
-                <button
-                    class="icon-btn"
-                    type="button"
-                    id="fecharModalIgreja"
-                    aria-label="Fechar formulário"
-                >
-
-                    ×
-
-                </button>
-
+                <button class="icon-btn" type="button" id="fecharModalOS" aria-label="Fechar">×</button>
             </div>
-
-
-            <!-- CAMPOS DO FORMULÁRIO -->
 
             <div class="form-grid">
+                <label class="full">
+                    Título / serviço
+                    <input type="text" id="tituloOS" maxlength="100" placeholder="Ex.: Troca de lâmpadas do salão" required>
+                </label>
 
+                <label>
+                    Tipo
+                    <select id="tipoOS" style="padding:11px;border:1px solid #dfe5ea;border-radius:10px">
+                        <option value="Elétrica">Elétrica</option>
+                        <option value="Hidráulica">Hidráulica</option>
+                        <option value="Telhado">Telhado</option>
+                        <option value="Pintura">Pintura</option>
+                        <option value="Alvenaria">Alvenaria</option>
+                        <option value="Limpeza">Limpeza</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </label>
+
+                <label>
+                    Prioridade
+                    <select id="prioridadeOS" style="padding:11px;border:1px solid #dfe5ea;border-radius:10px">
+                        <option value="Normal">Normal</option>
+                        <option value="Urgente">Urgente</option>
+                        <option value="Baixa">Baixa</option>
+                    </select>
+                </label>
 
                 <label class="full">
-
-                    Nome da congregação
-
-                    <input
-                        type="text"
-                        id="nomeNovaIgreja"
-                        maxlength="100"
-                        placeholder="Ex.: CONGREGAÇÃO CENTRAL"
-                        autocomplete="organization"
-                        required
-                    >
-
+                    Descrição / observações
+                    <input type="text" id="descricaoOS" maxlength="200" placeholder="Ex.: 3 lâmpadas queimadas no lado direito">
                 </label>
-
 
                 <label>
-
-                    Código de identificação
-
-                    <input
-                        type="text"
-                        id="codigoNovaIgreja"
-                        maxlength="30"
-                        placeholder="Ex.: 07-0800"
-                        required
-                    >
-
+                    Data prevista
+                    <input type="date" id="dataOS">
                 </label>
-
 
                 <label>
-
-                    Localidade / descrição
-
-                    <input
-                        type="text"
-                        id="descricaoNovaIgreja"
-                        maxlength="100"
-                        placeholder="Ex.: Setor Central"
-                    >
-
+                    Responsável
+                    <input type="text" id="responsavelOS" maxlength="60" placeholder="Ex.: Irmão João">
                 </label>
-
-
             </div>
-
-
-            <!-- BOTÕES DO MODAL -->
 
             <div class="modal-footer">
-
-                <button
-                    class="btn btn-outline"
-                    type="button"
-                    id="cancelarCadastroIgreja"
-                >
-
-                    Cancelar
-
-                </button>
-
-
-                <button
-                    class="btn btn-primary"
-                    type="submit"
-                >
-
-                    Salvar congregação
-
-                </button>
-
+                <button class="btn btn-outline" type="button" id="cancelarOS">Cancelar</button>
+                <button class="btn btn-primary" type="submit" id="salvarOS">Salvar OS</button>
             </div>
-
-
         </form>
-
     </dialog>
 
+<script>
+const KEY = 'ccb_manutencao_v1';
+const params = new URLSearchParams(location.search);
+const igrejaId = Number(params.get('id'));
+let igrejas = JSON.parse(localStorage.getItem(KEY) || '[]');
+let igreja = igrejas.find(i => i.id === igrejaId);
+let busca = '', filtroStatus = '';
+
+const $ = id => document.getElementById(id);
+const salvar = () => localStorage.setItem(KEY, JSON.stringify(igrejas));
+
+if(!igreja){
+  $('nomeIgreja').textContent = 'Congregação não encontrada';
+  $('infoIgreja').textContent = 'Volte para o painel e selecione uma congregação.';
+  $('btnNovaOS').disabled = true;
+} else {
+  $('nomeIgreja').textContent = igreja.nome;
+  $('infoIgreja').textContent = (igreja.codigo || '') + ' • ' + (igreja.descricao || '');
+  igreja.os = igreja.os || [];
+}
+
+function render(){
+  if(!igreja) return;
+  const lista = igreja.os.filter(o => {
+    const okBusca = (o.titulo + ' ' + (o.descricao||'')).toLowerCase().includes(busca);
+    const okStatus = !filtroStatus || o.status === filtroStatus;
+    return okBusca && okStatus;
+  });
+  $('totalOS').textContent = igreja.os.length;
+  $('concluidas').textContent = igreja.os.filter(o => o.status === 'concluida').length;
+  $('pendentes').textContent = igreja.os.filter(o => o.status === 'pendente').length;
+  $('andamento').textContent = igreja.os.filter(o => o.status === 'andamento').length;
+
+  $('listaOS').innerHTML = lista.length ? '' : '<div class="empty">Nenhuma OS encontrada.<br>Clique em + Nova OS.</div>';
+  lista.forEach(o => {
+    const div = document.createElement('div');
+    div.style.cssText = 'border:1px solid #dfe5ea;border-radius:12px;padding:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap';
+    const cor = o.status === 'concluida' ? '#1e7d4d' : o.status === 'andamento' ? '#c97a0a' : '#18364b';
+    const label = o.status === 'concluida' ? 'Concluída' : o.status === 'andamento' ? 'Em andamento' : 'Pendente';
+    div.innerHTML = `
+      <div style="flex:1;min-width:220px">
+        <strong>${o.titulo}</strong><br>
+        <span style="font-size:13px;color:#6b7a86">${o.tipo} • ${o.prioridade} ${o.data ? '• ' + o.data.split('-').reverse().join('/') : ''} ${o.responsavel ? '• ' + o.responsavel : ''}</span><br>
+        <span style="font-size:13px">${o.descricao || ''}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        <span class="chip" style="color:${cor}">${label}</span>
+        <select data-acao="status" data-id="${o.id}" style="padding:8px;border:1px solid #dfe5ea;border-radius:8px">
+          <option value="pendente" ${o.status==='pendente'?'selected':''}>Pendente</option>
+          <option value="andamento" ${o.status==='andamento'?'selected':''}>Em andamento</option>
+          <option value="concluida" ${o.status==='concluida'?'selected':''}>Concluída</option>
+        </select>
+        <button data-acao="excluir" data-id="${o.id}" style="border:0;background:none;color:#b3261e;cursor:pointer;font-size:13px">Excluir</button>
+      </div>`;
+    $('listaOS').appendChild(div);
+  });
+
+  // Ações da lista
+  document.querySelectorAll('[data-acao="status"]').forEach(sel => {
+    sel.onchange = e => {
+      const os = igreja.os.find(x => x.id === Number(sel.dataset.id));
+      if(os){ os.status = e.target.value; salvar(); render(); }
+    };
+  });
+  document.querySelectorAll('[data-acao="excluir"]').forEach(btn => {
+    btn.onclick = () => {
+      if(confirm('Excluir esta OS?')){
+        igreja.os = igreja.os.filter(x => x.id !== Number(btn.dataset.id));
+        salvar(); render();
+      }
+    };
+  });
+}
+
+$('buscaOS').oninput = e => { busca = e.target.value.toLowerCase(); render(); };
+$('filtroStatus').onchange = e => { filtroStatus = e.target.value; render(); };
+
+$('btnNovaOS').onclick = () => { $('formOS').reset(); $('modalOS').showModal(); };
+$('fecharModalOS').onclick = () => $('modalOS').close();
+$('cancelarOS').onclick = () => $('modalOS').close();
+
+$('formOS').onsubmit = e => {
+  e.preventDefault();
+  const titulo = $('tituloOS').value.trim();
+  if(!titulo || !igreja) return;
+  igreja.os.unshift({
+    id: Date.now(),
+    titulo,
+    tipo: $('tipoOS').value,
+    prioridade: $('prioridadeOS').value,
+    descricao: $('descricaoOS').value.trim(),
+    data: $('dataOS').value,
+    responsavel: $('responsavelOS').value.trim(),
+    status: 'pendente',
+    criadoEm: new Date().toISOString()
+  });
+  salvar(); $('modalOS').close(); render();
+};
+
+render();
+</script>
 
 </body>
-
 </html>

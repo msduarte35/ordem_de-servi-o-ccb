@@ -26,7 +26,7 @@
 
         <a
             class="brand brand-link"
-            href="index.html"
+            href="./index.html"
             aria-label="Página inicial do Controle de Manutenção"
         >
 
@@ -51,7 +51,6 @@
 
     </header>
 
-
     <!-- CONTEÚDO PRINCIPAL -->
 
     <main class="container central-container">
@@ -66,6 +65,7 @@
                     src="./Logoccb.avif"
                     alt="Logo da Congregação Cristã no Brasil"
                     class="logo-ccb"
+                    onerror="this.style.display='none'"
                 >
 
                 <div class="hero-texto">
@@ -95,7 +95,6 @@
 
         </section>
 
-
         <!-- INDICADORES GERAIS -->
 
         <section
@@ -105,7 +104,7 @@
 
             <article class="stat-card">
                 <span>Congregações cadastradas</span>
-                <strong id="totalIgrejas">11</strong>
+                <strong id="totalIgrejas">0</strong>
             </article>
 
             <article class="stat-card">
@@ -124,7 +123,6 @@
             </article>
 
         </section>
-
 
         <!-- BACKUP E RESTAURAÇÃO -->
 
@@ -198,7 +196,6 @@
 
         </section>
 
-
         <!-- ÁREA PRINCIPAL -->
 
         <section class="central-workspace">
@@ -226,11 +223,10 @@
                         class="sidebar-total"
                         id="totalIgrejasMenu"
                     >
-                        11
+                        0
                     </span>
 
                 </div>
-
 
                 <!-- PESQUISA -->
 
@@ -248,7 +244,6 @@
 
                 </label>
 
-
                 <!-- LISTA DE CONGREGAÇÕES -->
 
                 <nav
@@ -259,7 +254,6 @@
                 >
                     <!-- Conteúdo gerado pelo JavaScript -->
                 </nav>
-
 
                 <!-- CADASTRAR CONGREGAÇÃO -->
 
@@ -272,7 +266,6 @@
                 </button>
 
             </aside>
-
 
             <!-- PAINEL DE INFORMAÇÕES -->
 
@@ -290,7 +283,6 @@
 
         </section>
 
-
         <!-- RODAPÉ -->
 
         <footer class="footer-note">
@@ -298,7 +290,6 @@
         </footer>
 
     </main>
-
 
     <!-- MODAL DE CADASTRO DE CONGREGAÇÃO -->
 
@@ -308,7 +299,7 @@
         aria-labelledby="tituloModalIgreja"
     >
 
-        <form id="formIgreja">
+        <form id="formIgreja" method="dialog">
 
             <!-- CABEÇALHO DO MODAL -->
 
@@ -341,7 +332,6 @@
                 </button>
 
             </div>
-
 
             <!-- CAMPOS DO FORMULÁRIO -->
 
@@ -391,7 +381,6 @@
 
             </div>
 
-
             <!-- BOTÕES DO MODAL -->
 
             <div class="modal-footer">
@@ -407,6 +396,7 @@
                 <button
                     class="btn btn-primary"
                     type="submit"
+                    id="salvarIgreja"
                 >
                     Salvar congregação
                 </button>

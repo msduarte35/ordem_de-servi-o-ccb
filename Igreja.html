@@ -1,429 +1,502 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#18364b">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#18364b">
 
-  <title>Ordens de Serviço | Controle de Manutenção</title>
+    <meta
+        name="description"
+        content="Sistema de controle de manutenção das congregações da Congregação Cristã no Brasil."
+    >
 
-  <link rel="stylesheet" href="./style.css">
-  <script src="./script.js" defer></script>
+    <title>Controle de Manutenção | Painel Central</title>
+
+    <link rel="stylesheet" href="./style.css">
+
+    <script src="./script.js" defer></script>
 </head>
 
-<body data-page="igreja">
+<body data-page="painel">
 
-  <header class="topbar">
-    <a class="brand brand-link" href="index.html">
-      <div class="brand-mark">OS</div>
-      <div>
-        <span class="eyebrow">CONGREGAÇÃO CRISTÃ NO BRASIL</span>
-        <h1>Controle de Manutenção</h1>
-      </div>
-    </a>
+    <!-- =================================================
+         CABEÇALHO
+    ================================================== -->
 
-    <div class="topbar-actions">
-      <a class="btn btn-outline" href="index.html">← Todas as congregações</a>
-      <button class="btn btn-primary" id="btnNovaOS">＋ Nova ordem</button>
-    </div>
-  </header>
+    <header class="topbar">
 
-  <main class="container">
+        <a
+            class="brand brand-link"
+            href="index.html"
+            aria-label="Página inicial do Controle de Manutenção"
+        >
 
-    <section class="intro">
-      <div>
-        <p class="eyebrow">GESTÃO DE SERVIÇOS</p>
-        <h2 id="nomeIgreja">Ordens de serviço</h2>
-        <p class="muted" id="codigoIgreja">
-          Cadastre, acompanhe e atualize as atividades de manutenção.
-        </p>
-      </div>
+            <div class="brand-mark" aria-hidden="true">
+                OS
+            </div>
 
-      <div class="intro-actions">
-        <button class="btn btn-outline" id="btnExportar">Exportar CSV</button>
-        <button class="btn btn-primary" id="btnImprimir">Imprimir ATA</button>
-      </div>
-    </section>
+            <div>
 
-    <!-- =========================================
-         ATA DA REUNIÃO MENSAL
-    ========================================== -->
+                <span class="eyebrow">
+                    CONGREGAÇÃO CRISTÃ NO BRASIL
+                </span>
 
-    <section class="panel ata-panel" id="painelAta">
+                <h1>Controle de Manutenção</h1>
 
-      <div class="panel-heading">
-        <div>
-          <p class="eyebrow">DOCUMENTO DE REUNIÃO</p>
-          <h3>ATA – Reunião Manutenção Preventiva</h3>
-          <p class="muted small">
-            Preencha os dados da reunião para gerar a ata da congregação atual.
-          </p>
-        </div>
-      </div>
+            </div>
 
-      <div class="ata-config">
+        </a>
 
-        <div class="form-grid">
+        <div class="topbar-tag">
 
-          <label>
-            Data da reunião
-            <input type="date" id="ataData" required>
-          </label>
+            <span class="online-dot" aria-hidden="true"></span>
 
-          <label>
-            Horário da reunião
-            <input type="time" id="ataHorario" value="19:30">
-          </label>
-
-          <label>
-            Mês de competência
-            <select id="ataMes">
-              <option value="Janeiro">Janeiro</option>
-              <option value="Fevereiro">Fevereiro</option>
-              <option value="Março">Março</option>
-              <option value="Abril">Abril</option>
-              <option value="Maio">Maio</option>
-              <option value="Junho">Junho</option>
-              <option value="Julho">Julho</option>
-              <option value="Agosto">Agosto</option>
-              <option value="Setembro">Setembro</option>
-              <option value="Outubro">Outubro</option>
-              <option value="Novembro">Novembro</option>
-              <option value="Dezembro">Dezembro</option>
-            </select>
-          </label>
-
-          <label>
-            Ano de competência
-            <input type="number" id="ataAno" min="2026" value="2026">
-          </label>
-
-          <label class="full">
-            Participantes
-            <textarea
-              id="ataParticipantes"
-              rows="3"
-              placeholder="Informe os nomes dos participantes da reunião..."
-            ></textarea>
-          </label>
+            Painel central
 
         </div>
 
-        <p class="muted small">
-          A congregação será identificada automaticamente conforme a página individual aberta.
-        </p>
+    </header>
 
-      </div>
 
-      <div class="ata-preview" id="ataDocumento">
+    <!-- =================================================
+         CONTEÚDO PRINCIPAL
+    ================================================== -->
 
-        <div class="ata-cabecalho">
-          <img
-            src="./Logoccb.avif"
-            alt="Logo Congregação Cristã no Brasil"
-            class="ata-logo"
-          >
+    <main class="container central-container">
 
-          <h2>CONGREGAÇÃO CRISTÃ NO BRASIL</h2>
-          <h3>ATA – Reunião Manutenção Preventiva</h3>
 
-          <p>
-            Congregação:
-            <strong id="ataNomeIgreja">Carregando congregação...</strong>
-          </p>
+        <!-- =================================================
+             APRESENTAÇÃO
+        ================================================== -->
 
-          <p>
-            Data:
-            <strong id="ataDataTexto">Não informada</strong>
-            &nbsp; | &nbsp;
-            Horário:
-            <strong id="ataHorarioTexto">Não informado</strong>
-          </p>
-        </div>
+        <section class="hero central-hero">
 
-        <div class="ata-conteudo">
+            <div class="hero-apresentacao">
 
-          <h3>REGISTRO DA REUNIÃO</h3>
+                <img
+                    src="./Logoccb.avif"
+                    alt="Logo da Congregação Cristã no Brasil"
+                    class="logo-ccb"
+                >
 
-          <p id="ataTexto">
-            Foi realizada a reunião mensal da manutenção preventiva,
-            sendo observado e ciência de todos o cumprimento das inspeções
-            conforme cronograma disponibilizado no Sistema de Gestão da
-            Congregação Cristã no Brasil referente à competência
-            Mês: <strong id="ataMesTexto">Janeiro</strong>
-            do ano: <strong id="ataAnoTexto">2026</strong>.
-          </p>
+                <div class="hero-texto">
 
-          <div class="ata-participantes">
-            <strong>Participantes:</strong>
-            <p id="ataParticipantesTexto">Não informados.</p>
-          </div>
+                    <p class="eyebrow">
+                        GESTÃO DE SERVIÇOS
+                    </p>
 
-          <h3>ORDENS DE SERVIÇO DA COMPETÊNCIA</h3>
+                    <h2>Painel de congregações</h2>
 
-          <p class="ata-periodo">
-            Ordens de serviço abertas na data da reunião.
-          </p>
+                    <p class="muted">
+                        Gerencie as unidades e acompanhe os indicadores
+                        de manutenção.
+                    </p>
 
-          <div class="table-wrap ata-table-wrap">
-            <table class="ata-tabela">
-              <thead>
-                <tr>
-                  <th>Nº</th>
-                  <th>Descrição da atividade</th>
-                  <th>Responsável</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
+                </div>
 
-              <tbody id="ataTabelaOS">
-                <tr>
-                  <td colspan="4">
-                    As ordens de serviço serão carregadas automaticamente.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+            </div>
 
-          <p class="ata-total">
-            Total de ordens de serviço:
-            <strong id="ataTotalOS">0</strong>
-          </p>
+            <button
+                class="btn btn-primary btn-add-top"
+                type="button"
+                id="btnNovaIgrejaTopo"
+            >
 
-        </div>
+                ＋ Cadastrar congregação
 
-        <footer class="print-signatures" aria-label="Assinaturas para impressão">
+            </button>
 
-          <div class="signature">
-            <span></span>
-            <strong>ASSINATURA - MINISTÉRIO</strong>
-          </div>
+        </section>
 
-          <div class="signature">
-            <span></span>
-            <strong>ASSINATURA - RESPONSÁVEL PELA MANUTENÇÃO</strong>
-          </div>
+
+        <!-- =================================================
+             INDICADORES GERAIS
+        ================================================== -->
+
+        <section
+            class="stats stats-central"
+            aria-label="Resumo geral das manutenções"
+        >
+
+            <article class="stat-card">
+
+                <span>Congregações cadastradas</span>
+
+                <strong id="totalIgrejas">11</strong>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <span>Total de OS</span>
+
+                <strong id="totalOSGeral">0</strong>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <span>Concluídas</span>
+
+                <strong id="concluidasGeral">0</strong>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <span>Pendentes</span>
+
+                <strong id="pendentesGeral">0</strong>
+
+            </article>
+
+        </section>
+
+
+        <!-- =================================================
+             BACKUP E RESTAURAÇÃO
+        ================================================== -->
+
+        <section
+            class="backup-card"
+            aria-label="Backup e restauração dos dados"
+        >
+
+            <div
+                class="backup-icon"
+                aria-hidden="true"
+            >
+                ⇄
+            </div>
+
+
+            <div class="backup-content">
+
+                <span class="eyebrow">
+                    SEGURANÇA DOS DADOS
+                </span>
+
+                <h3>Backup e restauração</h3>
+
+                <p>
+                    Exporte os registros de manutenção para transferir
+                    as informações para outro computador ou celular.
+                </p>
+
+                <small
+                    id="backupStatus"
+                    aria-live="polite"
+                >
+                    Último backup: gere um arquivo para salvar seus dados.
+                </small>
+
+                <small class="backup-info">
+
+                    <strong>Importante:</strong>
+
+                    a transferência é manual e não sincroniza
+                    os dispositivos automaticamente.
+
+                </small>
+
+            </div>
+
+
+            <div class="backup-actions">
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="btnGerarBackup"
+                >
+
+                    ↓ Gerar backup
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn btn-outline"
+                    id="btnRestaurarBackup"
+                >
+
+                    ↑ Restaurar backup
+
+                </button>
+
+
+                <input
+                    type="file"
+                    id="arquivoBackup"
+                    accept=".json,application/json"
+                    aria-label="Selecionar arquivo de backup"
+                    hidden
+                >
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ÁREA PRINCIPAL
+        ================================================== -->
+
+        <section class="central-workspace">
+
+
+            <!-- =============================================
+                 MENU LATERAL
+            ============================================== -->
+
+            <aside
+                class="church-sidebar"
+                aria-label="Menu de congregações"
+            >
+
+                <div class="sidebar-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            UNIDADES
+                        </p>
+
+                        <h3>Congregações</h3>
+
+                    </div>
+
+                    <span
+                        class="sidebar-total"
+                        id="totalIgrejasMenu"
+                    >
+                        11
+                    </span>
+
+                </div>
+
+
+                <!-- PESQUISA -->
+
+                <label class="search sidebar-search">
+
+                    <span aria-hidden="true">⌕</span>
+
+                    <input
+                        type="search"
+                        id="buscaIgreja"
+                        placeholder="Buscar congregação..."
+                        autocomplete="off"
+                        aria-label="Buscar congregação"
+                    >
+
+                </label>
+
+
+                <!-- LISTA DINÂMICA DE CONGREGAÇÕES -->
+
+                <nav
+                    class="church-nav"
+                    id="listaIgrejas"
+                    aria-live="polite"
+                    aria-label="Lista de congregações"
+                >
+
+                    <!-- Conteúdo gerado pelo JavaScript -->
+
+                </nav>
+
+
+                <!-- CADASTRAR CONGREGAÇÃO -->
+
+                <button
+                    class="btn btn-outline btn-new-sidebar"
+                    type="button"
+                    id="btnNovaIgreja"
+                >
+
+                    ＋ Nova congregação
+
+                </button>
+
+            </aside>
+
+
+            <!-- =============================================
+                 PAINEL DE INFORMAÇÕES
+            ============================================== -->
+
+            <section
+                class="church-details panel"
+                aria-label="Detalhes da congregação selecionada"
+                aria-live="polite"
+            >
+
+                <div id="detalhesIgreja">
+
+                    <!-- Informações inseridas pelo JavaScript -->
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+        <!-- =================================================
+             RODAPÉ
+        ================================================== -->
+
+        <footer class="footer-note">
+
+            Painel central • Controle local de ordens de serviço
 
         </footer>
 
-      </div>
+    </main>
 
-    </section>
 
-    <!-- =========================================
-         INDICADORES DAS ORDENS DE SERVIÇO
-    ========================================== -->
+    <!-- =================================================
+         MODAL DE CADASTRO DE CONGREGAÇÃO
+    ================================================== -->
 
-    <section class="stats" aria-label="Resumo das ordens">
+    <dialog
+        id="modalIgreja"
+        class="modal-church"
+        aria-labelledby="tituloModalIgreja"
+    >
 
-      <article class="stat-card">
-        <span>Total de OS</span>
-        <strong id="totalOS">0</strong>
-      </article>
+        <form id="formIgreja">
 
-      <article class="stat-card">
-        <span>Concluídas</span>
-        <strong id="concluidas">0</strong>
-      </article>
 
-      <article class="stat-card">
-        <span>Em andamento</span>
-        <strong id="andamento">0</strong>
-      </article>
+            <!-- CABEÇALHO DO MODAL -->
 
-      <article class="stat-card">
-        <span>Pendentes / atrasadas</span>
-        <strong id="pendentes">0</strong>
-      </article>
+            <div class="modal-header">
 
-    </section>
+                <div>
 
-    <!-- =========================================
-         LISTA DE ATIVIDADES
-    ========================================== -->
+                    <p class="eyebrow">
+                        CADASTRO DE UNIDADE
+                    </p>
 
-    <section class="panel">
+                    <h3 id="tituloModalIgreja">
+                        Nova congregação
+                    </h3>
 
-      <div class="panel-heading">
-        <div>
-          <h3>Lista de atividades</h3>
-          <p class="muted small">
-            Os registros desta congregação são salvos neste navegador.
-          </p>
-        </div>
+                    <p class="muted small">
+                        Preencha os dados para adicionar uma unidade
+                        ao menu lateral.
+                    </p>
 
-        <span class="counter" id="contadorLista">0 registros</span>
-      </div>
+                </div>
 
-      <div class="filters">
 
-        <label class="search">
-          <span>⌕</span>
-          <input
-            type="search"
-            id="busca"
-            placeholder="Buscar por OS, local, descrição ou responsável..."
-          >
-        </label>
+                <button
+                    class="icon-btn"
+                    type="button"
+                    id="fecharModalIgreja"
+                    aria-label="Fechar formulário"
+                >
 
-        <select id="filtroStatus" aria-label="Filtrar por status">
-          <option value="">Todos os status</option>
-          <option>ABERTA</option>
-          <option>EM ANDAMENTO</option>
-          <option>N/OK</option>
-          <option>ATRASADA</option>
-          <option>CONCLUÍDA</option>
-        </select>
+                    ×
 
-        <select id="filtroResponsavel" aria-label="Filtrar por responsável">
-          <option value="">Todos os responsáveis</option>
-        </select>
+                </button>
 
-        <select id="filtroConclusao" aria-label="Filtrar por conclusão">
-          <option value="">Concluídas e não concluídas</option>
-          <option value="SIM">Somente concluídas</option>
-          <option value="NÃO">Somente não concluídas</option>
-        </select>
+            </div>
 
-      </div>
 
-      <div class="table-wrap">
+            <!-- CAMPOS DO FORMULÁRIO -->
 
-        <table>
-          <thead>
-            <tr>
-              <th>Nº</th>
-              <th>Abertura</th>
-              <th>Local / atividade e observações</th>
-              <th>Responsável</th>
-              <th>Concluída?</th>
-              <th>Status</th>
-              <th>Conclusão</th>
-              <th class="actions-col">Ações</th>
-            </tr>
-          </thead>
+            <div class="form-grid">
 
-          <tbody id="tabelaOS"></tbody>
-        </table>
 
-        <div class="empty-state" id="vazio" hidden>
-          <div class="empty-icon">⌕</div>
-          <strong>Nenhuma ordem encontrada</strong>
-          <p class="muted">
-            Altere os filtros ou cadastre uma nova ordem.
-          </p>
-        </div>
+                <label class="full">
 
-      </div>
+                    Nome da congregação
 
-    </section>
+                    <input
+                        type="text"
+                        id="nomeNovaIgreja"
+                        maxlength="100"
+                        placeholder="Ex.: CONGREGAÇÃO CENTRAL"
+                        autocomplete="organization"
+                        required
+                    >
 
-    <p class="footer-note">MVP • Controle local de ordens de serviço</p>
+                </label>
 
-  </main>
 
-  <!-- =========================================
-       MODAL DE CADASTRO DE OS
-  ========================================== -->
+                <label>
 
-  <dialog id="modalOS">
+                    Código de identificação
 
-    <form id="formOS">
+                    <input
+                        type="text"
+                        id="codigoNovaIgreja"
+                        maxlength="30"
+                        placeholder="Ex.: 07-0800"
+                        required
+                    >
 
-      <div class="modal-header">
-        <div>
-          <p class="eyebrow">REGISTRO DE MANUTENÇÃO</p>
-          <h3 id="tituloModal">Nova ordem de serviço</h3>
-        </div>
+                </label>
 
-        <button
-          type="button"
-          class="icon-btn"
-          id="fecharModal"
-          aria-label="Fechar"
-        >×</button>
-      </div>
 
-      <input type="hidden" id="osId">
+                <label>
 
-      <div class="form-grid">
+                    Localidade / descrição
 
-        <label>
-          Número da OS
-          <input id="numero" type="number" min="1" required>
-        </label>
+                    <input
+                        type="text"
+                        id="descricaoNovaIgreja"
+                        maxlength="100"
+                        placeholder="Ex.: Setor Central"
+                    >
 
-        <label>
-          Data de abertura
-          <input id="dataAbertura" type="date" required>
-        </label>
+                </label>
 
-        <label class="full">
-          Local / descrição da atividade
-          <textarea
-            id="descricao"
-            rows="3"
-            required
-            placeholder="Ex.: Salão - verificar corrimão solto"
-          ></textarea>
-        </label>
 
-        <label class="full">
-          Observações
-          <textarea
-            id="observacoes"
-            rows="3"
-            placeholder="Registre detalhes do serviço, materiais utilizados, motivo da pendência etc."
-          ></textarea>
-        </label>
+            </div>
 
-        <label>
-          Responsável
-          <select id="responsavel" required></select>
-        </label>
 
-        <label>
-          Status
-          <select id="status" required>
-            <option>ABERTA</option>
-            <option>EM ANDAMENTO</option>
-            <option>N/OK</option>
-            <option>ATRASADA</option>
-            <option>CONCLUÍDA</option>
-          </select>
-        </label>
+            <!-- BOTÕES DO MODAL -->
 
-        <label>
-          Concluída?
-          <select id="concluida">
-            <option value="NÃO">NÃO</option>
-            <option value="SIM">SIM</option>
-          </select>
-        </label>
+            <div class="modal-footer">
 
-        <label>
-          Data de conclusão
-          <input id="dataConclusao" type="date">
-        </label>
+                <button
+                    class="btn btn-outline"
+                    type="button"
+                    id="cancelarCadastroIgreja"
+                >
 
-      </div>
+                    Cancelar
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline" id="cancelar">
-          Cancelar
-        </button>
+                </button>
 
-        <button type="submit" class="btn btn-primary">
-          Salvar ordem
-        </button>
-      </div>
 
-    </form>
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
 
-  </dialog>
+                    Salvar congregação
+
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </dialog>
+
 
 </body>
+
 </html>

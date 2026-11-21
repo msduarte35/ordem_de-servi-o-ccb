@@ -1,17 +1,19 @@
 /* =========================================================
    CONTROLE DE MANUTENÇÃO CCB
    PAINEL CENTRAL + CONGREGAÇÕES + ORDENS DE SERVIÇO
-   ATA INDIVIDUAL + BACKUP E RESTAURAÇÃO
+   BACKUP E RESTAURAÇÃO
 
-   - Painel central sem ATA e sem botão de impressão.
-   - ATA configurada e impressa somente em igreja.html.
+   - Menu lateral de congregações.
+   - Indicadores individuais e gerais.
    - Cadastro de congregações.
    - Ordens de serviço por congregação.
    - Visualização, edição e exclusão de OS.
-   - Pesquisa, filtros e exportação CSV.
+   - Pesquisa e filtros.
+   - Exportação CSV e impressão.
    - Backup e restauração.
    - Preservação dos dados existentes.
 ========================================================= */
+
 
 /* =========================================================
    1. CONFIGURAÇÕES
@@ -38,6 +40,11 @@ let ordens = [];
 let backupEmAndamento = false;
 let modoVisualizacao = false;
 
+
+/* =========================================================
+   2. CONGREGAÇÕES INICIAIS
+========================================================= */
+
 const IGREJAS_INICIAIS = [
     { id: "070002", codigo: "BR 07-0002", nome: "ALEXÂNIA - CENTRO", descricao: "Central" },
     { id: "070318", codigo: "BR 07-0318", nome: "DISTRITO OLHOS D'ÁGUA", descricao: "Olhos d'Água" },
@@ -51,6 +58,17 @@ const IGREJAS_INICIAIS = [
     { id: "070705", codigo: "BR 07-0705", nome: "CONGREGAÇÃO 10", descricao: "Nova congregação 10" },
     { id: "070706", codigo: "BR 07-0706", nome: "CONGREGAÇÃO 11", descricao: "Nova congregação 11" }
 ];
+
+
+/* =========================================================
+   3. ORDENS INICIAIS DA CENTRAL
+
+   Serão utilizadas somente se:
+   - A chave da Central ainda não existir;
+   - Não houver ordens antigas para migrar.
+
+   Nunca substituem dados já existentes.
+========================================================= */
 
 const DADOS_INICIAIS_CENTRAL = [
     { id: 1, numero: 1, dataAbertura: "2026-08-01", descricao: "SALÃO (CORRIMÃO SOLTO)", responsavel: "ADEMILSON", concluida: "SIM", status: "CONCLUÍDA", dataConclusao: "2026-09-09" },
@@ -71,8 +89,9 @@ const DADOS_INICIAIS_CENTRAL = [
     { id: 16, numero: 16, dataAbertura: "2026-09-26", descricao: "SUPORTE DE APOIO DE BÍBLIA DO BANCO LADO DAS IRMÃS ESTÁ SOLTO", responsavel: "MOACIR", concluida: "NÃO", status: "ATRASADA", dataConclusao: "" }
 ];
 
+
 /* =========================================================
-   2. FUNÇÕES GERAIS
+   4. FUNÇÕES GERAIS
 ========================================================= */
 
 function $(id) {
@@ -82,7 +101,8 @@ function $(id) {
 function lerJSON(chave, padrao = null) {
     try {
         const valor = localStorage.getItem(chave);
-        return valor === null ? padrao : JSON.parse(valor);
+        if (valor === null) return padrao;
+        return JSON.parse(valor);
     } catch (erro) {
         console.error("Erro ao ler:", chave, erro);
         return padrao;
@@ -120,13 +140,16 @@ function dataHoje() {
 
 function formatarData(data) {
     if (!data) return "-";
+
     const partes = String(data).split("-");
     if (partes.length !== 3) return data;
+
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
 function normalizarStatus(status) {
     const valor = String(status || "ABERTA").trim().toUpperCase();
+
     const equivalencias = {
         "CONCLUIDO": "CONCLUÍDA",
         "CONCLUIDA": "CONCLUÍDA",
@@ -134,14 +157,18 @@ function normalizarStatus(status) {
         "NOK": "N/OK",
         "NÃO OK": "N/OK"
     };
+
     return equivalencias[valor] || valor;
 }
 
 function normalizarOrdem(os, indice = 0) {
     const ordem = os && typeof os === "object" ? os : {};
+
     const statusOriginal = normalizarStatus(ordem.status);
 
-    const concluida = String(ordem.concluida || "NÃO").toUpperCase() === "SIM" || statusOriginal === "CONCLUÍDA";
+    const concluida =
+        String(ordem.concluida || "NÃO").toUpperCase() === "SIM" ||
+        statusOriginal === "CONCLUÍDA";
 
     return {
         id: String(ordem.id || `os-${Date.now()}-${indice}`),
@@ -163,6 +190,7 @@ function obterListaOrdens(dados) {
     return [];
 }
 
+
 /* =========================================================
    5. CONGREGAÇÕES E ARMAZENAMENTO
 ========================================================= */
@@ -170,12 +198,15 @@ function obterListaOrdens(dados) {
 function carregarIgrejas() {
     const salvas = lerJSON(CHAVE_IGREJAS, []);
     const listaSalva = Array.isArray(salvas) ? salvas : [];
+
     const resultado = IGREJAS_INICIAIS.map(igreja => ({ ...igreja }));
 
     listaSalva.forEach(igreja => {
         if (!igreja || !igreja.id) return;
 
-        const indice = resultado.findIndex(item => String(item.id) === String(igreja.id));
+        const indice = resultado.findIndex(item =>
+            String(item.id) === String(igreja.id)
+        );
 
         if (indice >= 0) {
             resultado[indice] = { ...resultado[indice], ...igreja };
@@ -200,8 +231,13 @@ function carregarOrdens(idIgreja) {
     if (!idIgreja) return [];
 
     const dados = lerJSON(obterChaveIgreja(idIgreja), []);
-    const lista = obterListaOrdens(dados);
 
+    if (Array.isArray(dados)) {
+        return dados.map((ordem, indice) => normalizarOrdem(ordem, indice));
+    }
+
+    // Compatibilidade com backups/formatos antigos.
+    const lista = obterListaOrdens(dados);
     return lista.map((ordem, indice) => normalizarOrdem(ordem, indice));
 }
 
@@ -209,14 +245,17 @@ function salvarOrdens(id, lista) {
     return salvarJSON(obterChaveIgreja(id), lista);
 }
 
+
 /* =========================================================
-   6. MIGRAÇÃO DOS DADOS ANTIGOS
+   6. MIGRAÇÃO DA CENTRAL
+
+   Executada antes de carregar a página individual.
 ========================================================= */
 
 function migrarDadosAntigos() {
     const chaveCentral = obterChaveIgreja(ID_CENTRAL);
 
-    // Nunca sobrescreve os dados da Central já existentes.
+    // Se a chave já existe, inclusive vazia, não substitui.
     if (localStorage.getItem(chaveCentral) !== null) {
         console.info("Dados da Central já existentes. Preservados.");
         return;
@@ -233,6 +272,7 @@ function migrarDadosAntigos() {
         if (salvarOrdens(ID_CENTRAL, migradas)) {
             console.info("Ordens antigas migradas:", migradas.length);
         }
+
         return;
     }
 
@@ -245,8 +285,9 @@ function migrarDadosAntigos() {
     }
 }
 
+
 /* =========================================================
-   7. IDENTIFICAÇÃO DA PÁGINA E CONGREGAÇÃO
+   7. IDENTIFICAÇÃO DA PÁGINA E DA CONGREGAÇÃO
 ========================================================= */
 
 function obterPagina() {
@@ -255,17 +296,17 @@ function obterPagina() {
 
 function obterIgrejaAtual() {
     const parametros = new URLSearchParams(window.location.search);
-
     const id = parametros.get("igreja") || parametros.get("id");
 
-    // Se existe um código na URL, procura exatamente essa congregação.
     if (id) {
-        return igrejas.find(igreja =>
+        const encontrada = igrejas.find(igreja =>
             String(igreja.id) === String(id)
-        ) || null;
+        );
+
+        if (encontrada) return encontrada;
     }
 
-    // Sem código na URL, abre a Central.
+    // Ao abrir igreja.html sem parâmetro, utiliza a Central.
     return igrejas.find(igreja =>
         String(igreja.id) === ID_CENTRAL
     ) || null;
@@ -280,6 +321,8 @@ document.addEventListener("DOMContentLoaded", iniciarSistema);
 
 function iniciarSistema() {
     igrejas = carregarIgrejas();
+
+    // A migração acontece antes da inicialização da página.
     migrarDadosAntigos();
 
     const pagina = obterPagina();
@@ -290,15 +333,15 @@ function iniciarSistema() {
     console.info("Controle de Manutenção CCB inicializado.");
 }
 
+
 /* =========================================================
-   9. PAINEL CENTRAL — SEM ATA E SEM IMPRESSÃO
+   9. PAINEL CENTRAL
 ========================================================= */
 
 function iniciarPainel() {
     configurarModalIgreja();
     configurarPesquisaIgreja();
     configurarBackup();
-
     atualizarResumoGeral();
     renderizarListaIgrejas();
     renderizarEstadoInicial();
@@ -326,6 +369,7 @@ function atualizarResumoGeral() {
     if ($("totalIgrejasMenu")) $("totalIgrejasMenu").textContent = igrejas.length;
 }
 
+
 /* =========================================================
    10. MENU LATERAL
 ========================================================= */
@@ -334,7 +378,9 @@ function renderizarListaIgrejas() {
     const lista = $("listaIgrejas");
     if (!lista) return;
 
-    const busca = $("buscaIgreja")?.value.toLowerCase().trim() || "";
+    const busca = $("buscaIgreja")
+        ? $("buscaIgreja").value.toLowerCase().trim()
+        : "";
 
     const filtradas = igrejas.filter(igreja => {
         const texto = [
@@ -367,10 +413,8 @@ function renderizarListaIgrejas() {
         item.type = "button";
         item.className = "church-nav-item";
 
-        if (
-            igrejaSelecionada &&
-            String(igrejaSelecionada.id) === String(igreja.id)
-        ) {
+        if (igrejaSelecionada &&
+            String(igrejaSelecionada.id) === String(igreja.id)) {
             item.classList.add("ativo");
         }
 
@@ -389,20 +433,18 @@ function renderizarListaIgrejas() {
     });
 }
 
-
 function selecionarIgreja(id) {
-    const igreja = igrejas.find(item =>
-        String(item.id) === String(id)
+    igrejaSelecionada = igrejas.find(igreja =>
+        String(igreja.id) === String(id)
     );
 
-    if (!igreja) {
-        alert("Congregação não encontrada. Verifique o código informado.");
-        return;
-    }
+    if (!igrejaSelecionada) return;
 
-    window.location.href =
-        `igreja.html?igreja=${encodeURIComponent(igreja.id)}`;
+    renderizarListaIgrejas();
+    renderizarDetalhesIgreja();
 }
+
+
 /* =========================================================
    11. DETALHES DA CONGREGAÇÃO
 ========================================================= */
@@ -418,9 +460,15 @@ function renderizarDetalhesIgreja() {
 
     const registros = carregarOrdens(igrejaSelecionada.id);
     const total = registros.length;
-    const concluidas = registros.filter(os => os.concluida === "SIM").length;
+
+    const concluidas = registros.filter(os =>
+        os.concluida === "SIM"
+    ).length;
+
     const pendentes = total - concluidas;
-    const percentual = total > 0 ? Math.round((concluidas / total) * 100) : 0;
+    const percentual = total > 0
+        ? Math.round((concluidas / total) * 100)
+        : 0;
 
     detalhes.innerHTML = `
         <div class="detail-heading">
@@ -444,35 +492,27 @@ function renderizarDetalhesIgreja() {
         <div class="detail-info-grid">
             <div class="detail-info-card">
                 <span class="detail-info-icon">⌂</span>
-                <div>
-                    <small>Congregação</small>
-                    <strong>${escaparHTML(igrejaSelecionada.nome)}</strong>
-                </div>
+                <div><small>Congregação</small>
+                <strong>${escaparHTML(igrejaSelecionada.nome)}</strong></div>
             </div>
 
             <div class="detail-info-card">
                 <span class="detail-info-icon">#</span>
-                <div>
-                    <small>Código</small>
-                    <strong>${escaparHTML(igrejaSelecionada.codigo || igrejaSelecionada.id)}</strong>
-                </div>
+                <div><small>Código</small>
+                <strong>${escaparHTML(igrejaSelecionada.codigo || igrejaSelecionada.id)}</strong></div>
             </div>
 
             <div class="detail-info-card">
                 <span class="detail-info-icon">i</span>
-                <div>
-                    <small>Descrição</small>
-                    <strong>${escaparHTML(igrejaSelecionada.descricao || "-")}</strong>
-                </div>
+                <div><small>Descrição</small>
+                <strong>${escaparHTML(igrejaSelecionada.descricao || "-")}</strong></div>
             </div>
         </div>
 
         <div class="detail-section-title">
             <div>
                 <h4>Resumo das manutenções</h4>
-                <p class="muted small">
-                    Indicadores das ordens de serviço desta congregação.
-                </p>
+                <p class="muted small">Indicadores das ordens de serviço desta congregação.</p>
             </div>
             <span class="detail-period">Dados atuais</span>
         </div>
@@ -480,26 +520,17 @@ function renderizarDetalhesIgreja() {
         <div class="detail-stats">
             <div class="detail-stat">
                 <span class="detail-stat-symbol blue">▤</span>
-                <div>
-                    <small>Total de ordens</small>
-                    <strong>${total}</strong>
-                </div>
+                <div><small>Total de ordens</small><strong>${total}</strong></div>
             </div>
 
             <div class="detail-stat">
                 <span class="detail-stat-symbol green">✓</span>
-                <div>
-                    <small>Concluídas</small>
-                    <strong>${concluidas}</strong>
-                </div>
+                <div><small>Concluídas</small><strong>${concluidas}</strong></div>
             </div>
 
             <div class="detail-stat">
                 <span class="detail-stat-symbol amber">◷</span>
-                <div>
-                    <small>Pendentes</small>
-                    <strong>${pendentes}</strong>
-                </div>
+                <div><small>Pendentes</small><strong>${pendentes}</strong></div>
             </div>
         </div>
 
@@ -541,8 +572,10 @@ function renderizarEstadoInicial() {
 }
 
 function configurarPesquisaIgreja() {
-    $("buscaIgreja")?.addEventListener("input", renderizarListaIgrejas);
+    const busca = $("buscaIgreja");
+    if (busca) busca.addEventListener("input", renderizarListaIgrejas);
 }
+
 
 /* =========================================================
    12. CADASTRO DE CONGREGAÇÕES
@@ -626,37 +659,39 @@ function cadastrarIgreja(evento) {
     alert("Congregação cadastrada com sucesso!");
 }
 
+
 /* =========================================================
    13. PÁGINA INDIVIDUAL DA CONGREGAÇÃO
 ========================================================= */
 
-
 function iniciarPaginaIgreja() {
-    igrejas = carregarIgrejas();
-
     igrejaSelecionada = obterIgrejaAtual();
 
     if (!igrejaSelecionada) {
-        alert("Congregação não encontrada. Verifique o código informado.");
-
+        alert("Congregação não encontrada.");
         window.location.href = "index.html";
         return;
     }
 
+    // Carrega novamente os dados da congregação identificada.
     ordens = carregarOrdens(igrejaSelecionada.id);
 
     atualizarIdentificacaoIgreja();
-
     configurarFormularioOS();
     configurarFiltrosOS();
     configurarBotoesOS();
-    configurarAtaIgreja();
-
     atualizarTelaOS();
+}
 
-    console.info("Congregação aberta:", igrejaSelecionada.nome);
-    console.info("Código:", igrejaSelecionada.id);
-    console.info("Ordens carregadas:", ordens.length);
+function atualizarIdentificacaoIgreja() {
+    if ($("nomeIgreja")) {
+        $("nomeIgreja").textContent = igrejaSelecionada.nome;
+    }
+
+    if ($("codigoIgreja")) {
+        $("codigoIgreja").textContent =
+            `${igrejaSelecionada.codigo || igrejaSelecionada.id} • ${igrejaSelecionada.descricao || ""}`;
+    }
 }
 
 
@@ -666,12 +701,14 @@ function iniciarPaginaIgreja() {
 
 function configurarFormularioOS() {
     const formulario = $("formOS");
+
     if (!formulario) {
         console.error("Formulário formOS não encontrado.");
         return;
     }
 
     formulario.addEventListener("submit", salvarOrdemFormulario);
+
     preencherResponsaveis();
 
     $("btnNovaOS")?.addEventListener("click", abrirNovaOS);
@@ -726,11 +763,15 @@ function habilitarFormularioOS(habilitado) {
     if (!formulario) return;
 
     formulario.querySelectorAll("input, select, textarea").forEach(campo => {
-        if (campo.type !== "hidden") campo.disabled = !habilitado;
+        if (campo.type === "hidden") return;
+        campo.disabled = !habilitado;
     });
 
     const botaoSalvar = formulario.querySelector('[type="submit"]');
-    if (botaoSalvar) botaoSalvar.hidden = !habilitado;
+
+    if (botaoSalvar) {
+        botaoSalvar.hidden = !habilitado;
+    }
 
     if ($("cancelar")) {
         $("cancelar").textContent = habilitado ? "Cancelar" : "Fechar";
@@ -738,15 +779,15 @@ function habilitarFormularioOS(habilitado) {
 }
 
 function preencherFormularioOS(os) {
-    if ($("osId")) $("osId").value = os.id;
-    if ($("numero")) $("numero").value = os.numero;
-    if ($("dataAbertura")) $("dataAbertura").value = os.dataAbertura;
-    if ($("descricao")) $("descricao").value = os.descricao;
-    if ($("observacoes")) $("observacoes").value = os.observacoes;
-    if ($("responsavel")) $("responsavel").value = os.responsavel;
-    if ($("status")) $("status").value = os.status;
-    if ($("concluida")) $("concluida").value = os.concluida;
-    if ($("dataConclusao")) $("dataConclusao").value = os.dataConclusao || "";
+    $("osId").value = os.id;
+    $("numero").value = os.numero;
+    $("dataAbertura").value = os.dataAbertura;
+    $("descricao").value = os.descricao;
+    $("observacoes").value = os.observacoes;
+    $("responsavel").value = os.responsavel;
+    $("status").value = os.status;
+    $("concluida").value = os.concluida;
+    $("dataConclusao").value = os.dataConclusao || "";
 }
 
 function abrirNovaOS() {
@@ -757,18 +798,19 @@ function abrirNovaOS() {
     habilitarFormularioOS(true);
     formulario.reset();
 
-    if ($("osId")) $("osId").value = "";
-    if ($("tituloModal")) $("tituloModal").textContent = "Nova ordem de serviço";
-    if ($("dataAbertura")) $("dataAbertura").value = dataHoje();
-    if ($("status")) $("status").value = "ABERTA";
-    if ($("concluida")) $("concluida").value = "NÃO";
-    if ($("dataConclusao")) $("dataConclusao").value = "";
+    $("osId").value = "";
+    $("tituloModal").textContent = "Nova ordem de serviço";
+    $("dataAbertura").value = dataHoje();
+    $("status").value = "ABERTA";
+    $("concluida").value = "NÃO";
+    $("dataConclusao").value = "";
 
     const numeros = ordens.map(os => Number(os.numero) || 0);
-    if ($("numero")) $("numero").value = Math.max(0, ...numeros) + 1;
+    $("numero").value = Math.max(0, ...numeros) + 1;
 
     abrirModalOS();
 }
+
 
 /* =========================================================
    15. VISUALIZAR ORDEM DE SERVIÇO
@@ -783,15 +825,17 @@ function visualizarOS(id) {
     }
 
     modoVisualizacao = true;
+
     preencherFormularioOS(os);
 
-    if ($("tituloModal")) {
-        $("tituloModal").textContent = `Visualizar OS nº ${os.numero}`;
-    }
+    $("tituloModal").textContent = `Visualizar OS nº ${os.numero}`;
 
+    // Desabilita os campos para impedir alterações acidentais.
     habilitarFormularioOS(false);
+
     abrirModalOS();
 }
+
 
 /* =========================================================
    16. EDITAR ORDEM DE SERVIÇO
@@ -807,14 +851,14 @@ function editarOS(id) {
 
     modoVisualizacao = false;
     habilitarFormularioOS(true);
+
     preencherFormularioOS(os);
 
-    if ($("tituloModal")) {
-        $("tituloModal").textContent = "Editar ordem de serviço";
-    }
+    $("tituloModal").textContent = "Editar ordem de serviço";
 
     abrirModalOS();
 }
+
 
 /* =========================================================
    17. SALVAR ORDEM DE SERVIÇO
@@ -822,18 +866,19 @@ function editarOS(id) {
 
 function salvarOrdemFormulario(evento) {
     evento.preventDefault();
+
     if (modoVisualizacao) return;
 
-    const idExistente = $("osId")?.value || "";
-    const numero = Number($("numero")?.value);
-    const dataAbertura = $("dataAbertura")?.value;
-    const descricao = $("descricao")?.value.trim() || "";
-    const observacoes = $("observacoes")?.value.trim() || "";
-    const responsavel = $("responsavel")?.value || "";
+    const idExistente = $("osId").value;
+    const numero = Number($("numero").value);
+    const dataAbertura = $("dataAbertura").value;
+    const descricao = $("descricao").value.trim();
+    const observacoes = $("observacoes").value.trim();
+    const responsavel = $("responsavel").value;
 
-    let status = normalizarStatus($("status")?.value);
-    let concluida = $("concluida")?.value || "NÃO";
-    let dataConclusao = $("dataConclusao")?.value || "";
+    let status = normalizarStatus($("status").value);
+    let concluida = $("concluida").value;
+    let dataConclusao = $("dataConclusao").value;
 
     if (!numero || numero < 1) {
         alert("Informe um número válido para a OS.");
@@ -875,7 +920,8 @@ function salvarOrdemFormulario(evento) {
     }
 
     const ordem = {
-        id: idExistente || `os-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        id: idExistente ||
+            `os-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         numero,
         dataAbertura,
         descricao,
@@ -908,6 +954,7 @@ function salvarOrdemFormulario(evento) {
         : "Ordem de serviço cadastrada!"
     );
 }
+
 
 /* =========================================================
    18. ATUALIZAÇÃO DE CONCLUSÃO
@@ -945,6 +992,7 @@ function atualizarStatusConclusao() {
     }
 }
 
+
 /* =========================================================
    19. EXCLUIR ORDEM DE SERVIÇO
 ========================================================= */
@@ -971,6 +1019,7 @@ function excluirOS(id) {
     atualizarTelaOS();
 }
 
+
 /* =========================================================
    20. FILTROS E PESQUISA
 ========================================================= */
@@ -979,10 +1028,11 @@ function configurarFiltrosOS() {
     ["busca", "filtroStatus", "filtroResponsavel", "filtroConclusao"]
         .forEach(id => {
             const campo = $(id);
-            if (!campo) return;
 
-            campo.addEventListener("input", atualizarTabelaOS);
-            campo.addEventListener("change", atualizarTabelaOS);
+            if (campo) {
+                campo.addEventListener("input", atualizarTabelaOS);
+                campo.addEventListener("change", atualizarTabelaOS);
+            }
         });
 }
 
@@ -1014,8 +1064,12 @@ function obterOrdensFiltradas() {
 
     return ordens.filter(os => {
         const texto = [
-            os.numero, os.dataAbertura, os.descricao,
-            os.observacoes, os.responsavel, os.status
+            os.numero,
+            os.dataAbertura,
+            os.descricao,
+            os.observacoes,
+            os.responsavel,
+            os.status
         ].join(" ").toLowerCase();
 
         return (
@@ -1027,6 +1081,7 @@ function obterOrdensFiltradas() {
     });
 }
 
+
 /* =========================================================
    21. ATUALIZAÇÃO DA TELA DE ORDENS
 ========================================================= */
@@ -1035,19 +1090,22 @@ function atualizarTelaOS() {
     atualizarIndicadoresOS();
     atualizarFiltroResponsaveis();
     atualizarTabelaOS();
-
-    // A prévia só existe na página individual.
-    if (obterPagina() === "igreja" && $("painelAta")) {
-        atualizarPreviaAtaIgreja();
-    }
 }
 
 function atualizarIndicadoresOS() {
     const total = ordens.length;
-    const concluidas = ordens.filter(os => os.concluida === "SIM").length;
-    const andamento = ordens.filter(os => os.status === "EM ANDAMENTO").length;
+
+    const concluidas = ordens.filter(os =>
+        os.concluida === "SIM"
+    ).length;
+
+    const andamento = ordens.filter(os =>
+        os.status === "EM ANDAMENTO"
+    ).length;
+
     const pendentes = ordens.filter(os =>
-        os.concluida !== "SIM" && os.status !== "EM ANDAMENTO"
+        os.concluida !== "SIM" &&
+        os.status !== "EM ANDAMENTO"
     ).length;
 
     if ($("totalOS")) $("totalOS").textContent = total;
@@ -1055,6 +1113,7 @@ function atualizarIndicadoresOS() {
     if ($("andamento")) $("andamento").textContent = andamento;
     if ($("pendentes")) $("pendentes").textContent = pendentes;
 }
+
 
 function atualizarTabelaOS() {
     const tabela = $("tabelaOS");
@@ -1065,13 +1124,15 @@ function atualizarTabelaOS() {
         return;
     }
 
-    const filtradas = obterOrdensFiltradas()
-        .sort((a, b) => Number(a.numero) - Number(b.numero));
+    const filtradas = obterOrdensFiltradas();
 
     tabela.innerHTML = "";
 
+    filtradas.sort((a, b) => Number(a.numero) - Number(b.numero));
+
     filtradas.forEach(os => {
         const linha = document.createElement("tr");
+
         const classeStatus = os.status
             .toLowerCase()
             .replaceAll(" ", "-")
@@ -1079,25 +1140,35 @@ function atualizarTabelaOS() {
 
         linha.innerHTML = `
             <td><strong>${escaparHTML(os.numero)}</strong></td>
+
             <td>${formatarData(os.dataAbertura)}</td>
+
             <td>
                 <strong>${escaparHTML(os.descricao)}</strong>
-                ${os.observacoes ? `<p class="muted small">${escaparHTML(os.observacoes)}</p>` : ""}
+                ${os.observacoes
+                    ? `<p class="muted small">${escaparHTML(os.observacoes)}</p>`
+                    : ""}
             </td>
+
             <td>${escaparHTML(os.responsavel)}</td>
+
             <td>
                 <span class="status ${os.concluida === "SIM" ? "CONCLUÍDA" : "pendente"}">
                     ${escaparHTML(os.concluida)}
                 </span>
             </td>
+
             <td>
                 <span class="status ${escaparHTML(classeStatus)}">
                     ${escaparHTML(os.status)}
                 </span>
             </td>
+
             <td>${formatarData(os.dataConclusao)}</td>
+
             <td class="actions-col">
                 <div class="os-menu-container">
+
                     <button
                         type="button"
                         class="btn-opcoes-os"
@@ -1105,24 +1176,45 @@ function atualizarTabelaOS() {
                         aria-label="Opções da ordem de serviço ${escaparHTML(os.numero)}"
                         aria-expanded="false"
                         title="Mais opções">
+
                         <span>⋮</span>
                     </button>
 
-                    <div class="os-dropdown"
-                         data-dropdown-id="${escaparHTML(os.id)}"
-                         hidden>
-                        <button type="button" class="os-dropdown-item"
-                                data-acao="visualizar" data-id="${escaparHTML(os.id)}">
-                            <span>◉</span> Visualizar
+                    <div
+                        class="os-dropdown"
+                        data-dropdown-id="${escaparHTML(os.id)}"
+                        hidden>
+
+                        <button
+                            type="button"
+                            class="os-dropdown-item"
+                            data-acao="visualizar"
+                            data-id="${escaparHTML(os.id)}">
+
+                            <span>◉</span>
+                            Visualizar
                         </button>
-                        <button type="button" class="os-dropdown-item"
-                                data-acao="editar" data-id="${escaparHTML(os.id)}">
-                            <span>✎</span> Editar
+
+                        <button
+                            type="button"
+                            class="os-dropdown-item"
+                            data-acao="editar"
+                            data-id="${escaparHTML(os.id)}">
+
+                            <span>✎</span>
+                            Editar
                         </button>
-                        <button type="button" class="os-dropdown-item excluir"
-                                data-acao="excluir" data-id="${escaparHTML(os.id)}">
-                            <span>⌫</span> Excluir
+
+                        <button
+                            type="button"
+                            class="os-dropdown-item excluir"
+                            data-acao="excluir"
+                            data-id="${escaparHTML(os.id)}">
+
+                            <span>⌫</span>
+                            Excluir
                         </button>
+
                     </div>
                 </div>
             </td>
@@ -1131,14 +1223,21 @@ function atualizarTabelaOS() {
         tabela.appendChild(linha);
     });
 
+    // ABRIR E FECHAR O MENU DE OPÇÕES
     tabela.querySelectorAll(".btn-opcoes-os").forEach(botao => {
+
         botao.addEventListener("click", evento => {
             evento.stopPropagation();
 
             const id = botao.dataset.menuId;
-            const menu = tabela.querySelector(`[data-dropdown-id="${CSS.escape(id)}"]`);
+
+            const menu = tabela.querySelector(
+                `[data-dropdown-id="${CSS.escape(id)}"]`
+            );
+
             const estavaAberto = menu && !menu.hidden;
 
+            // Fecha todos os outros menus
             tabela.querySelectorAll(".os-dropdown").forEach(item => {
                 item.hidden = true;
             });
@@ -1147,6 +1246,7 @@ function atualizarTabelaOS() {
                 item.setAttribute("aria-expanded", "false");
             });
 
+            // Abre o menu selecionado
             if (menu && !estavaAberto) {
                 menu.hidden = false;
                 botao.setAttribute("aria-expanded", "true");
@@ -1154,13 +1254,16 @@ function atualizarTabelaOS() {
         });
     });
 
+    // EXECUTAR AS AÇÕES
     tabela.querySelectorAll(".os-dropdown-item").forEach(botao => {
+
         botao.addEventListener("click", evento => {
             evento.stopPropagation();
 
             const id = botao.dataset.id;
             const acao = botao.dataset.acao;
 
+            // Fecha os menus
             tabela.querySelectorAll(".os-dropdown").forEach(item => {
                 item.hidden = true;
             });
@@ -1175,9 +1278,11 @@ function atualizarTabelaOS() {
         });
     });
 
-    // Registra o fechamento global apenas uma vez.
+    // FECHAR MENU AO CLICAR FORA
     if (!document.body.dataset.menuOSConfigurado) {
+
         document.addEventListener("click", () => {
+
             document.querySelectorAll(".os-dropdown").forEach(menu => {
                 menu.hidden = true;
             });
@@ -1185,6 +1290,7 @@ function atualizarTabelaOS() {
             document.querySelectorAll(".btn-opcoes-os").forEach(botao => {
                 botao.setAttribute("aria-expanded", "false");
             });
+
         });
 
         document.body.dataset.menuOSConfigurado = "true";
@@ -1195,8 +1301,33 @@ function atualizarTabelaOS() {
             `${filtradas.length} ${filtradas.length === 1 ? "registro" : "registros"}`;
     }
 
-    if (vazio) vazio.hidden = filtradas.length > 0;
+    if (vazio) {
+        vazio.hidden = filtradas.length > 0;
+    }
 }
+
+
+    tabela.querySelectorAll("button[data-acao]").forEach(botao => {
+        botao.addEventListener("click", () => {
+            const id = botao.dataset.id;
+            const acao = botao.dataset.acao;
+
+            if (acao === "visualizar") visualizarOS(id);
+            if (acao === "editar") editarOS(id);
+            if (acao === "excluir") excluirOS(id);
+        });
+    });
+
+    if ($("contadorLista")) {
+        $("contadorLista").textContent =
+            `${filtradas.length} ${filtradas.length === 1 ? "registro" : "registros"}`;
+    }
+
+    if (vazio) {
+        vazio.hidden = filtradas.length > 0;
+    }
+
+
 
 /* =========================================================
    22. BOTÕES DA PÁGINA INDIVIDUAL
@@ -1204,11 +1335,9 @@ function atualizarTabelaOS() {
 
 function configurarBotoesOS() {
     $("btnExportar")?.addEventListener("click", exportarCSV);
-
-    // Não existe botão de impressão no index.html.
-    // Este botão pertence somente ao igreja.html e imprime a ATA.
-    $("btnImprimir")?.addEventListener("click", imprimirAta);
+    $("btnImprimir")?.addEventListener("click", () => window.print());
 }
+
 
 /* =========================================================
    23. EXPORTAÇÃO CSV
@@ -1228,15 +1357,22 @@ function exportarCSV() {
     ];
 
     const linhas = ordens.map(os => [
-        os.numero, os.dataAbertura, os.descricao, os.observacoes,
-        os.responsavel, os.concluida, os.status, os.dataConclusao
+        os.numero,
+        os.dataAbertura,
+        os.descricao,
+        os.observacoes,
+        os.responsavel,
+        os.concluida,
+        os.status,
+        os.dataConclusao
     ]);
 
     const csv = [cabecalho, ...linhas]
-        .map(linha => linha.map(valor =>
-            `"${String(valor ?? "").replace(/"/g, '""')}"`
-        ).join(";"))
-        .join("\r\n");
+        .map(linha =>
+            linha.map(valor =>
+                `"${String(valor ?? "").replace(/"/g, '""')}"`
+            ).join(";")
+        ).join("\r\n");
 
     const blob = new Blob(["\uFEFF" + csv], {
         type: "text/csv;charset=utf-8;"
@@ -1255,248 +1391,267 @@ function exportarCSV() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+
 /* =========================================================
-   24. ATA — SOMENTE NA PÁGINA INDIVIDUAL
+   24. BACKUP
 ========================================================= */
 
-function configurarAtaIgreja() {
-    if (obterPagina() !== "igreja") return;
-    if (!$("painelAta") || !igrejaSelecionada) return;
-
-    if ($("ataData") && !$("ataData").value) {
-        $("ataData").value = dataHoje();
-    }
-
-    if ($("ataMes") && !$("ataMes").value) {
-        const meses = [
-            "Janeiro", "Fevereiro", "Março", "Abril",
-            "Maio", "Junho", "Julho", "Agosto",
-            "Setembro", "Outubro", "Novembro", "Dezembro"
-        ];
-        $("ataMes").value = meses[new Date().getMonth()];
-    }
-
-    if ($("ataAno") && !$("ataAno").value) {
-        $("ataAno").value = new Date().getFullYear();
-    }
-
-    ["ataData", "ataHorario", "ataMes", "ataAno", "ataParticipantes"]
-        .forEach(id => {
-            const campo = $(id);
-            if (!campo) return;
-
-            campo.addEventListener("input", atualizarPreviaAtaIgreja);
-            campo.addEventListener("change", atualizarPreviaAtaIgreja);
-        });
-
-    atualizarPreviaAtaIgreja();
+function pertenceAoSistema(chave) {
+    return typeof chave === "string" && (
+        chave.startsWith(PREFIXO) ||
+        chave === CHAVE_ANTIGA ||
+        chave === CHAVE_IGREJAS
+    );
 }
 
-function atualizarPreviaAtaIgreja() {
-    if (obterPagina() !== "igreja") return;
-    if (!$("painelAta") || !igrejaSelecionada) return;
+function obterDadosSistema() {
+    const dados = {};
 
-    const data = $("ataData")?.value || "";
-    const horario = $("ataHorario")?.value || "";
-    const mes = $("ataMes")?.value || "";
-    const ano = $("ataAno")?.value || "";
-    const participantes = $("ataParticipantes")?.value || "";
+    for (let i = 0; i < localStorage.length; i++) {
+        const chave = localStorage.key(i);
 
-    if ($("ataNomeIgreja")) {
-        $("ataNomeIgreja").textContent = igrejaSelecionada.nome;
+        if (chave && pertenceAoSistema(chave)) {
+            dados[chave] = localStorage.getItem(chave);
+        }
     }
 
-    if ($("ataDataTexto")) {
-        $("ataDataTexto").textContent = data ? formatarData(data) : "Não informada";
-    }
-
-    if ($("ataHorarioTexto")) {
-        $("ataHorarioTexto").textContent = horario || "Não informado";
-    }
-
-    if ($("ataMesTexto")) $("ataMesTexto").textContent = mes || "____________";
-    if ($("ataAnoTexto")) $("ataAnoTexto").textContent = ano || "________";
-
-    if ($("ataParticipantesTexto")) {
-        $("ataParticipantesTexto").textContent =
-            participantes.trim() || "Não informados.";
-    }
-
-    atualizarOrdensAtaIgreja(data);
+    return dados;
 }
 
-function atualizarOrdensAtaIgreja(data) {
-    if (obterPagina() !== "igreja") return;
+function verificarArmazenamento() {
+    try {
+        const dados = obterDadosSistema();
+        const tamanho = new Blob([JSON.stringify(dados)]).size;
+        const mb = tamanho / (1024 * 1024);
 
-    const tabela = $("ataTabelaOS");
-    if (!tabela) return;
-
-    tabela.innerHTML = "";
-
-    if (!data) {
-        adicionarLinhaTabelaAta(
-            tabela,
-            "Informe a data da reunião para carregar as ordens de serviço."
-        );
-        atualizarTotalAta(0);
-        return;
+        return {
+            tamanho,
+            mb,
+            valido: mb <= LIMITE_BACKUP_MB
+        };
+    } catch (erro) {
+        console.error("Erro ao verificar armazenamento:", erro);
+        return { tamanho: 0, mb: 0, valido: false };
     }
+}
 
-    const ordensDoDia = ordens
-        .filter(os => os.dataAbertura === data)
-        .sort((a, b) => Number(a.numero) - Number(b.numero));
+function atualizarStatusBackup() {
+    const elemento = $("backupStatus");
+    if (!elemento) return;
 
-    if (!ordensDoDia.length) {
-        adicionarLinhaTabelaAta(
-            tabela,
-            "Nenhuma ordem de serviço encontrada para esta congregação na data selecionada."
-        );
-        atualizarTotalAta(0);
-        return;
-    }
+    const armazenamento = verificarArmazenamento();
 
-    ordensDoDia.forEach(os => {
-        const linha = document.createElement("tr");
+    elemento.textContent = armazenamento.valido
+        ? `Dados prontos para backup • ${armazenamento.mb.toFixed(2)} MB`
+        : "Verifique o armazenamento";
+}
 
-        [os.numero, os.descricao, os.responsavel || "-", os.status || "-"]
-            .forEach(valor => {
-                const celula = document.createElement("td");
-                celula.textContent = String(valor ?? "-");
-                linha.appendChild(celula);
-            });
+function configurarBackup() {
+    $("btnGerarBackup")?.addEventListener("click", gerarBackup);
 
-        tabela.appendChild(linha);
+    $("btnRestaurarBackup")?.addEventListener("click", () => {
+        $("arquivoBackup")?.click();
     });
 
-    atualizarTotalAta(ordensDoDia.length);
+    $("arquivoBackup")?.addEventListener("change", lerArquivoBackup);
+
+    atualizarStatusBackup();
 }
 
-function adicionarLinhaTabelaAta(tabela, mensagem) {
-    const linha = document.createElement("tr");
-    const celula = document.createElement("td");
+function gerarBackup() {
+    if (backupEmAndamento) return;
 
-    celula.colSpan = 4;
-    celula.textContent = mensagem;
+    backupEmAndamento = true;
 
-    linha.appendChild(celula);
-    tabela.appendChild(linha);
+    try {
+        const backup = {
+            sistema: SISTEMA_BACKUP,
+            versao: VERSAO_BACKUP,
+            dataGeracao: new Date().toISOString(),
+            dados: obterDadosSistema()
+        };
+
+        const conteudo = JSON.stringify(backup, null, 2);
+        const tamanhoMB = new Blob([conteudo]).size / (1024 * 1024);
+
+        if (tamanhoMB > LIMITE_BACKUP_MB) {
+            alert("O arquivo de backup ultrapassou o limite permitido.");
+            return;
+        }
+
+        const blob = new Blob([conteudo], {
+            type: "application/json"
+        });
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = `backup_manutencao_ccb_${dataHoje()}.json`;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+        atualizarStatusBackup();
+        alert("Backup gerado com sucesso!");
+
+    } catch (erro) {
+        console.error("Erro ao gerar backup:", erro);
+        alert("Não foi possível gerar o backup.");
+    } finally {
+        backupEmAndamento = false;
+    }
 }
 
-function atualizarTotalAta(total) {
-    if ($("ataTotalOS")) $("ataTotalOS").textContent = total;
+function validarBackup(backup) {
+    if (!backup || typeof backup !== "object") {
+        throw new Error("Arquivo inválido.");
+    }
+
+    if (backup.sistema !== SISTEMA_BACKUP) {
+        throw new Error("Este arquivo não pertence ao Controle de Manutenção CCB.");
+    }
+
+    if (!backup.dados || typeof backup.dados !== "object") {
+        throw new Error("O arquivo não contém dados válidos.");
+    }
+
+    const chaves = Object.keys(backup.dados);
+
+    if (!chaves.length) {
+        throw new Error("O arquivo de backup está vazio.");
+    }
+
+    chaves.forEach(chave => {
+        if (!pertenceAoSistema(chave)) {
+            throw new Error(`Chave não permitida no backup: ${chave}`);
+        }
+
+        if (typeof backup.dados[chave] !== "string") {
+            throw new Error(`Conteúdo inválido na chave: ${chave}`);
+        }
+
+        JSON.parse(backup.dados[chave]);
+    });
+
+    return true;
 }
 
+function lerArquivoBackup(evento) {
+    const arquivo = evento.target.files[0];
+    if (!arquivo) return;
 
-
-/* =========================================================
-   IMPRESSÃO DA ATA — CORRIGIDA
-   Imprime somente a ATA da congregação selecionada
-========================================================= */
-
-function imprimirAta() {
-
-    if (obterPagina() !== "igreja") {
-        alert("A impressão da ATA está disponível somente na página da congregação.");
+    if (arquivo.size > LIMITE_BACKUP_MB * 1024 * 1024) {
+        alert("O arquivo ultrapassa o limite de 20 MB.");
+        evento.target.value = "";
         return;
     }
 
-    const painelAta = $("painelAta");
-    const documentoAta = $("ataDocumento");
+    const leitor = new FileReader();
 
-    if (!painelAta || !documentoAta) {
-        console.error("Elementos da ATA não encontrados.");
-        alert("Não foi possível localizar o documento da ATA.");
-        return;
-    }
+    leitor.onload = () => {
+        try {
+            const backup = JSON.parse(leitor.result);
+            validarBackup(backup);
+            restaurarBackup(backup);
+        } catch (erro) {
+            console.error("Erro ao ler backup:", erro);
+            alert(erro.message || "Não foi possível ler o arquivo de backup.");
+        } finally {
+            evento.target.value = "";
+        }
+    };
 
-    if (!igrejaSelecionada) {
-        alert("Não foi possível identificar a congregação.");
-        return;
-    }
+    leitor.onerror = () => {
+        alert("Erro ao abrir o arquivo selecionado.");
+        evento.target.value = "";
+    };
 
-    const data = $("ataData")?.value || "";
-    const horario = $("ataHorario")?.value || "";
-    const mes = $("ataMes")?.value || "";
-    const ano = $("ataAno")?.value || "";
+    leitor.readAsText(arquivo);
+}
 
-    if (!data) {
-        alert("Informe a data da reunião.");
-        $("ataData")?.focus();
-        return;
-    }
+function restaurarBackup(backup) {
+    if (backupEmAndamento) return;
 
-    if (!horario) {
-        alert("Informe o horário da reunião.");
-        $("ataHorario")?.focus();
-        return;
-    }
+    const confirmar = confirm(
+        "ATENÇÃO!\n\n" +
+        "A restauração substituirá os dados atuais que possuem " +
+        "as mesmas chaves do backup.\n\n" +
+        "Recomendamos gerar um backup dos dados atuais antes " +
+        "de continuar.\n\nDeseja continuar?"
+    );
 
-    if (!mes) {
-        alert("Selecione o mês de competência.");
-        $("ataMes")?.focus();
-        return;
-    }
+    if (!confirmar) return;
 
-    if (!ano || Number(ano) < 2020 || Number(ano) > 2100) {
-        alert("Informe um ano válido para a competência.");
-        $("ataAno")?.focus();
-        return;
-    }
+    backupEmAndamento = true;
 
-    if (document.body.classList.contains("imprimindo-ata")) {
-        return;
-    }
+    const dadosAnteriores = {};
 
-    // Atualiza os dados da ATA antes da impressão.
-    atualizarPreviaAtaIgreja();
+    try {
+        Object.keys(backup.dados).forEach(chave => {
+            dadosAnteriores[chave] = localStorage.getItem(chave);
+        });
 
-    // Confere a estrutura real existente no HTML.
-    const cabecalho = documentoAta.querySelector(".ata-cabecalho");
-    const conteudo = documentoAta.querySelector(".ata-conteudo");
+        Object.entries(backup.dados).forEach(([chave, valor]) => {
+            localStorage.setItem(chave, valor);
+        });
 
-    if (!cabecalho || !conteudo) {
-        console.error("Cabeçalho ou conteúdo da ATA não encontrado.");
-        alert("A estrutura da ATA está incompleta.");
-        return;
-    }
+        igrejas = carregarIgrejas();
 
-    // Adiciona a classe esperada pelas regras de impressão do CSS.
-    documentoAta.classList.add("ata-documento");
+        if (obterPagina() === "painel") {
+            atualizarResumoGeral();
+            renderizarListaIgrejas();
+            atualizarStatusBackup();
 
-    // Ativa o modo exclusivo de impressão.
-    document.body.classList.add("imprimindo-ata");
+            if (igrejaSelecionada) {
+                igrejaSelecionada = igrejas.find(item =>
+                    String(item.id) === String(igrejaSelecionada.id)
+                ) || null;
 
-    let impressaoFinalizada = false;
-
-    function limparImpressao() {
-        if (impressaoFinalizada) return;
-
-        impressaoFinalizada = true;
-
-        document.body.classList.remove("imprimindo-ata");
-        documentoAta.classList.remove("ata-documento");
-
-        window.removeEventListener("afterprint", limparImpressao);
-    }
-
-    window.addEventListener("afterprint", limparImpressao);
-
-    // Aguarda o navegador atualizar o CSS antes de imprimir.
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-
-            try {
-                window.focus();
-                window.print();
-
-            } catch (erro) {
-                console.error("Erro ao imprimir a ATA:", erro);
-
-                limparImpressao();
-
-                alert("Não foi possível abrir a impressão. Tente novamente.");
+                renderizarDetalhesIgreja();
             }
+        }
 
+        if (obterPagina() === "igreja") {
+            igrejaSelecionada = obterIgrejaAtual();
+
+            if (igrejaSelecionada) {
+                ordens = carregarOrdens(igrejaSelecionada.id);
+                atualizarTelaOS();
+            }
+        }
+
+        alert("Backup restaurado com sucesso!");
+
+    } catch (erro) {
+        console.error("Erro ao restaurar backup:", erro);
+
+        Object.entries(dadosAnteriores).forEach(([chave, valor]) => {
+            try {
+                if (valor === null) localStorage.removeItem(chave);
+                else localStorage.setItem(chave, valor);
+            } catch (erroRestauracao) {
+                console.error("Erro ao reverter:", chave, erroRestauracao);
+            }
         });
-    });
+
+        igrejas = carregarIgrejas();
+
+        alert(
+            "A restauração falhou. O sistema tentou preservar os dados anteriores."
+        );
+
+    } finally {
+        backupEmAndamento = false;
+    }
 }
+
+
+/* =========================================================
+   25. FINALIZAÇÃO
+========================================================= */
+
+console.info("Controle de Manutenção CCB carregado.");

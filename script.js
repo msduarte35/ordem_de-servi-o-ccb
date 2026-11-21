@@ -1383,14 +1383,26 @@ function atualizarTotalAta(total) {
     if ($("ataTotalOS")) $("ataTotalOS").textContent = total;
 }
 
+
+
+/* =========================================================
+   IMPRESSÃO DA ATA — CORRIGIDA
+   Imprime somente a ATA da congregação selecionada
+========================================================= */
+
 function imprimirAta() {
+
     if (obterPagina() !== "igreja") {
-        alert("A impressão da ATA está disponível somente na página individual.");
+        alert("A impressão da ATA está disponível somente na página da congregação.");
         return;
     }
 
-    if (!$("painelAta")) {
-        alert("Área da ATA não encontrada nesta página.");
+    const painelAta = $("painelAta");
+    const documentoAta = $("ataDocumento");
+
+    if (!painelAta || !documentoAta) {
+        console.error("Elementos da ATA não encontrados.");
+        alert("Não foi possível localizar o documento da ATA.");
         return;
     }
 
@@ -1399,10 +1411,10 @@ function imprimirAta() {
         return;
     }
 
-    const data = $("ataData")?.value;
-    const horario = $("ataHorario")?.value;
-    const mes = $("ataMes")?.value;
-    const ano = $("ataAno")?.value;
+    const data = $("ataData")?.value || "";
+    const horario = $("ataHorario")?.value || "";
+    const mes = $("ataMes")?.value || "";
+    const ano = $("ataAno")?.value || "";
 
     if (!data) {
         alert("Informe a data da reunião.");
@@ -1428,272 +1440,60 @@ function imprimirAta() {
         return;
     }
 
-    atualizarPreviaAtaIgreja();
-
-    document.body.classList.add("imprimindo-ata");
-
-    const limparImpressao = () => {
-        document.body.classList.remove("imprimindo-ata");
-        window.removeEventListener("afterprint", limparImpressao);
-    };
-
-    window.addEventListener("afterprint", limparImpressao);
-    window.print();
-}
-
-/* =========================================================
-   25. BACKUP E RESTAURAÇÃO
-========================================================= */
-
-function pertenceAoSistema(chave) {
-    return typeof chave === "string" && (
-        chave.startsWith(PREFIXO) ||
-        chave === CHAVE_ANTIGA ||
-        chave === CHAVE_IGREJAS
-    );
-}
-
-function obterDadosSistema() {
-    const dados = {};
-
-    for (let i = 0; i < localStorage.length; i++) {
-        const chave = localStorage.key(i);
-
-        if (chave && pertenceAoSistema(chave)) {
-            dados[chave] = localStorage.getItem(chave);
-        }
-    }
-
-    return dados;
-}
-
-function verificarArmazenamento() {
-    try {
-        const dados = obterDadosSistema();
-        const tamanho = new Blob([JSON.stringify(dados)]).size;
-        const mb = tamanho / (1024 * 1024);
-
-        return {
-            tamanho,
-            mb,
-            valido: mb <= LIMITE_BACKUP_MB
-        };
-    } catch (erro) {
-        console.error("Erro ao verificar armazenamento:", erro);
-        return { tamanho: 0, mb: 0, valido: false };
-    }
-}
-
-function atualizarStatusBackup() {
-    const elemento = $("backupStatus");
-    if (!elemento) return;
-
-    const armazenamento = verificarArmazenamento();
-
-    elemento.textContent = armazenamento.valido
-        ? `Dados prontos para backup • ${armazenamento.mb.toFixed(2)} MB`
-        : "Verifique o armazenamento";
-}
-
-function configurarBackup() {
-    $("btnGerarBackup")?.addEventListener("click", gerarBackup);
-
-    $("btnRestaurarBackup")?.addEventListener("click", () => {
-        $("arquivoBackup")?.click();
-    });
-
-    $("arquivoBackup")?.addEventListener("change", lerArquivoBackup);
-
-    atualizarStatusBackup();
-}
-
-function gerarBackup() {
-    if (backupEmAndamento) return;
-
-    backupEmAndamento = true;
-
-    try {
-        const backup = {
-            sistema: SISTEMA_BACKUP,
-            versao: VERSAO_BACKUP,
-            dataGeracao: new Date().toISOString(),
-            dados: obterDadosSistema()
-        };
-
-        const conteudo = JSON.stringify(backup, null, 2);
-        const tamanhoMB = new Blob([conteudo]).size / (1024 * 1024);
-
-        if (tamanhoMB > LIMITE_BACKUP_MB) {
-            alert("O arquivo de backup ultrapassou o limite permitido.");
-            return;
-        }
-
-        const blob = new Blob([conteudo], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-
-        link.href = url;
-        link.download = `backup_manutencao_ccb_${dataHoje()}.json`;
-
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-
-        atualizarStatusBackup();
-        alert("Backup gerado com sucesso!");
-
-    } catch (erro) {
-        console.error("Erro ao gerar backup:", erro);
-        alert("Não foi possível gerar o backup.");
-    } finally {
-        backupEmAndamento = false;
-    }
-}
-
-function validarBackup(backup) {
-    if (!backup || typeof backup !== "object") {
-        throw new Error("Arquivo inválido.");
-    }
-
-    if (backup.sistema !== SISTEMA_BACKUP) {
-        throw new Error("Este arquivo não pertence ao Controle de Manutenção CCB.");
-    }
-
-    if (!backup.dados || typeof backup.dados !== "object" || Array.isArray(backup.dados)) {
-        throw new Error("O arquivo não contém dados válidos.");
-    }
-
-    const chaves = Object.keys(backup.dados);
-
-    if (!chaves.length) {
-        throw new Error("O arquivo de backup está vazio.");
-    }
-
-    chaves.forEach(chave => {
-        if (!pertenceAoSistema(chave)) {
-            throw new Error(`Chave não permitida no backup: ${chave}`);
-        }
-
-        if (typeof backup.dados[chave] !== "string") {
-            throw new Error(`Conteúdo inválido na chave: ${chave}`);
-        }
-
-        JSON.parse(backup.dados[chave]);
-    });
-
-    return true;
-}
-
-function lerArquivoBackup(evento) {
-    const arquivo = evento.target.files[0];
-    if (!arquivo) return;
-
-    if (arquivo.size > LIMITE_BACKUP_MB * 1024 * 1024) {
-        alert("O arquivo ultrapassa o limite de 20 MB.");
-        evento.target.value = "";
+    if (document.body.classList.contains("imprimindo-ata")) {
         return;
     }
 
-    const leitor = new FileReader();
+    // Atualiza os dados da ATA antes da impressão.
+    atualizarPreviaAtaIgreja();
 
-    leitor.onload = () => {
-        try {
-            const backup = JSON.parse(leitor.result);
-            validarBackup(backup);
-            restaurarBackup(backup);
-        } catch (erro) {
-            console.error("Erro ao ler backup:", erro);
-            alert(erro.message || "Não foi possível ler o arquivo de backup.");
-        } finally {
-            evento.target.value = "";
-        }
-    };
+    // Confere a estrutura real existente no HTML.
+    const cabecalho = documentoAta.querySelector(".ata-cabecalho");
+    const conteudo = documentoAta.querySelector(".ata-conteudo");
 
-    leitor.onerror = () => {
-        alert("Erro ao abrir o arquivo selecionado.");
-        evento.target.value = "";
-    };
-
-    leitor.readAsText(arquivo);
-}
-
-function restaurarBackup(backup) {
-    if (backupEmAndamento) return;
-
-    const confirmar = confirm(
-        "ATENÇÃO!\n\n" +
-        "A restauração substituirá os dados atuais que possuem as mesmas chaves do backup.\n\n" +
-        "Recomendamos gerar um backup dos dados atuais antes de continuar.\n\n" +
-        "Deseja continuar?"
-    );
-
-    if (!confirmar) return;
-
-    backupEmAndamento = true;
-    const dadosAnteriores = {};
-
-    try {
-        // Guarda os valores anteriores para permitir reversão em caso de falha.
-        Object.keys(backup.dados).forEach(chave => {
-            dadosAnteriores[chave] = localStorage.getItem(chave);
-        });
-
-        Object.entries(backup.dados).forEach(([chave, valor]) => {
-            localStorage.setItem(chave, valor);
-        });
-
-        igrejas = carregarIgrejas();
-
-        if (obterPagina() === "painel") {
-            atualizarResumoGeral();
-            renderizarListaIgrejas();
-            atualizarStatusBackup();
-
-            if (igrejaSelecionada) {
-                igrejaSelecionada = igrejas.find(item =>
-                    String(item.id) === String(igrejaSelecionada.id)
-                ) || null;
-
-                renderizarDetalhesIgreja();
-            }
-        }
-
-        if (obterPagina() === "igreja") {
-            igrejaSelecionada = obterIgrejaAtual();
-
-            if (igrejaSelecionada) {
-                ordens = carregarOrdens(igrejaSelecionada.id);
-                atualizarIdentificacaoIgreja();
-                atualizarTelaOS();
-            }
-        }
-
-        alert("Backup restaurado com sucesso!");
-
-    } catch (erro) {
-        console.error("Erro ao restaurar backup:", erro);
-
-        Object.entries(dadosAnteriores).forEach(([chave, valor]) => {
-            try {
-                if (valor === null) localStorage.removeItem(chave);
-                else localStorage.setItem(chave, valor);
-            } catch (erroRestauracao) {
-                console.error("Erro ao reverter:", chave, erroRestauracao);
-            }
-        });
-
-        igrejas = carregarIgrejas();
-
-        alert("A restauração falhou. O sistema tentou preservar os dados anteriores.");
-    } finally {
-        backupEmAndamento = false;
+    if (!cabecalho || !conteudo) {
+        console.error("Cabeçalho ou conteúdo da ATA não encontrado.");
+        alert("A estrutura da ATA está incompleta.");
+        return;
     }
+
+    // Adiciona a classe esperada pelas regras de impressão do CSS.
+    documentoAta.classList.add("ata-documento");
+
+    // Ativa o modo exclusivo de impressão.
+    document.body.classList.add("imprimindo-ata");
+
+    let impressaoFinalizada = false;
+
+    function limparImpressao() {
+        if (impressaoFinalizada) return;
+
+        impressaoFinalizada = true;
+
+        document.body.classList.remove("imprimindo-ata");
+        documentoAta.classList.remove("ata-documento");
+
+        window.removeEventListener("afterprint", limparImpressao);
+    }
+
+    window.addEventListener("afterprint", limparImpressao);
+
+    // Aguarda o navegador atualizar o CSS antes de imprimir.
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+
+            try {
+                window.focus();
+                window.print();
+
+            } catch (erro) {
+                console.error("Erro ao imprimir a ATA:", erro);
+
+                limparImpressao();
+
+                alert("Não foi possível abrir a impressão. Tente novamente.");
+            }
+
+        });
+    });
 }
-
-/* =========================================================
-   26. FINALIZAÇÃO
-========================================================= */
-
-console.info("Controle de Manutenção CCB carregado.");

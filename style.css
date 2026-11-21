@@ -2336,3 +2336,17 @@ dialog form {
         font-size: 14px;
     }
 }
+ .boas-vindas::before {
+    content: "";
+    display: block;
+
+    width: 260px;
+    height: 150px;
+
+    margin: 0 auto 25px;
+
+    background-image: url("https://raw.githubusercontent.com/msduarte35/ordem_de-servi-o-ccb/refs/heads/main/Logoccb.avif");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}

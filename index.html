@@ -1,11 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#18364b">
 
+    <meta name="theme-color" content="#18364b">
     <meta
         name="description"
         content="Sistema de controle de manutenção das congregações da Congregação Cristã no Brasil."
@@ -13,14 +14,15 @@
 
     <title>Controle de Manutenção | Painel Central</title>
 
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="index.css">
 
-    <script src="./script.js" defer></script>
 </head>
 
 <body data-page="painel">
 
-    <!-- CABEÇALHO -->
+    <!-- =================================================
+         CABEÇALHO
+    ================================================== -->
 
     <header class="topbar">
 
@@ -51,9 +53,13 @@
 
     </header>
 
-    <!-- CONTEÚDO PRINCIPAL -->
+
+    <!-- =================================================
+         CONTEÚDO PRINCIPAL
+    ================================================== -->
 
     <main class="container central-container">
+
 
         <!-- APRESENTAÇÃO -->
 
@@ -95,7 +101,10 @@
 
         </section>
 
-        <!-- INDICADORES GERAIS -->
+
+        <!-- =================================================
+             INDICADORES GERAIS
+        ================================================== -->
 
         <section
             class="stats stats-central"
@@ -103,28 +112,43 @@
         >
 
             <article class="stat-card">
+
                 <span>Congregações cadastradas</span>
+
                 <strong id="totalIgrejas">0</strong>
+
             </article>
 
             <article class="stat-card">
+
                 <span>Total de OS</span>
+
                 <strong id="totalOSGeral">0</strong>
+
             </article>
 
             <article class="stat-card">
+
                 <span>Concluídas</span>
+
                 <strong id="concluidasGeral">0</strong>
+
             </article>
 
             <article class="stat-card">
+
                 <span>Pendentes</span>
+
                 <strong id="pendentesGeral">0</strong>
+
             </article>
 
         </section>
 
-        <!-- BACKUP E RESTAURAÇÃO -->
+
+        <!-- =================================================
+             BACKUP E RESTAURAÇÃO
+        ================================================== -->
 
         <section
             class="backup-card"
@@ -196,9 +220,13 @@
 
         </section>
 
-        <!-- ÁREA PRINCIPAL -->
+
+        <!-- =================================================
+             ÁREA PRINCIPAL
+        ================================================== -->
 
         <section class="central-workspace">
+
 
             <!-- MENU LATERAL -->
 
@@ -228,6 +256,7 @@
 
                 </div>
 
+
                 <!-- PESQUISA -->
 
                 <label class="search sidebar-search">
@@ -244,6 +273,7 @@
 
                 </label>
 
+
                 <!-- LISTA DE CONGREGAÇÕES -->
 
                 <nav
@@ -252,10 +282,11 @@
                     aria-live="polite"
                     aria-label="Lista de congregações"
                 >
-                    <!-- Conteúdo gerado pelo JavaScript -->
+                    <!-- Conteúdo gerado pelo script.js -->
                 </nav>
 
-                <!-- CADASTRAR CONGREGAÇÃO -->
+
+                <!-- NOVA CONGREGAÇÃO -->
 
                 <button
                     class="btn btn-outline btn-new-sidebar"
@@ -267,6 +298,7 @@
 
             </aside>
 
+
             <!-- PAINEL DE INFORMAÇÕES -->
 
             <section
@@ -276,14 +308,17 @@
             >
 
                 <div id="detalhesIgreja">
-                    <!-- Informações inseridas pelo JavaScript -->
+                    <!-- Informações inseridas pelo script.js -->
                 </div>
 
             </section>
 
         </section>
 
-        <!-- RODAPÉ -->
+
+        <!-- =================================================
+             RODAPÉ
+        ================================================== -->
 
         <footer class="footer-note">
             Painel central • Controle local de ordens de serviço
@@ -291,7 +326,10 @@
 
     </main>
 
-    <!-- MODAL DE CADASTRO DE CONGREGAÇÃO -->
+
+    <!-- =================================================
+         MODAL DE CADASTRO DE CONGREGAÇÃO
+    ================================================== -->
 
     <dialog
         id="modalIgreja"
@@ -300,6 +338,7 @@
     >
 
         <form id="formIgreja" method="dialog">
+
 
             <!-- CABEÇALHO DO MODAL -->
 
@@ -333,6 +372,7 @@
 
             </div>
 
+
             <!-- CAMPOS DO FORMULÁRIO -->
 
             <div class="form-grid">
@@ -352,6 +392,7 @@
 
                 </label>
 
+
                 <label>
 
                     Código de identificação
@@ -365,6 +406,7 @@
                     >
 
                 </label>
+
 
                 <label>
 
@@ -380,6 +422,7 @@
                 </label>
 
             </div>
+
 
             <!-- BOTÕES DO MODAL -->
 
@@ -406,7 +449,6 @@
         </form>
 
     </dialog>
-
+<script src="./index.js" defer></script>
 </body>
-
 </html>

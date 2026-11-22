@@ -1,14 +1,22 @@
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <meta name="theme-color" content="#18364b">
-    <meta name="description" content="Detalhes e ordens de serviço da congregação.">
+    <meta
+        name="description"
+        content="Detalhes e ordens de serviço da congregação."
+    >
+
     <title>Controle de Manutenção | Congregação</title>
-    <link rel="stylesheet" href="./style.css">
-    <script src="./script.js" defer></script>
+
+    <link rel="stylesheet" href="./index.css">
+<link rel="stylesheet" href="./igreja.css">
 </head>
 
 <body data-page="igreja">
@@ -16,252 +24,421 @@
     <!-- CABEÇALHO -->
 
     <header class="topbar">
-        <a class="brand brand-link" href="./index.html" aria-label="Voltar para o Painel Central">
+
+        <a
+            class="brand brand-link"
+            href="./index.html"
+            aria-label="Voltar para o Painel Central"
+        >
             <div class="brand-mark" aria-hidden="true">OS</div>
+
             <div>
-                <span class="eyebrow">CONGREGAÇÃO CRISTÃ NO BRASIL</span>
+                <span class="eyebrow">
+                    CONGREGAÇÃO CRISTÃ NO BRASIL
+                </span>
                 <h1>Controle de Manutenção</h1>
             </div>
         </a>
+
         <div class="topbar-tag">
             <span class="online-dot" aria-hidden="true"></span>
             Detalhes da congregação
         </div>
+
     </header>
+
+
+    <!-- CONTEÚDO PRINCIPAL -->
 
     <main class="container central-container">
 
-        <!-- VOLTAR + TÍTULO -->
+        <!-- IDENTIFICAÇÃO DA CONGREGAÇÃO -->
 
         <section class="hero central-hero">
+
             <div class="hero-apresentacao">
-                <img src="./Logoccb.avif" alt="Logo da Congregação Cristã no Brasil" class="logo-ccb" onerror="this.style.display='none'">
+
+                <img
+                    src="./Logoccb.avif"
+                    alt="Logo da Congregação Cristã no Brasil"
+                    class="logo-ccb"
+                    onerror="this.style.display='none'"
+                >
+
                 <div class="hero-texto">
+
                     <p class="eyebrow">UNIDADE SELECIONADA</p>
+
                     <h2 id="nomeIgreja">Carregando...</h2>
-                    <p class="muted" id="infoIgreja">—</p>
+
+                    <p class="muted" id="codigoIgreja">—</p>
+
                 </div>
+
             </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <a class="btn btn-outline" href="./index.html">← Voltar</a>
-                <button class="btn btn-primary" type="button" id="btnNovaOS">＋ Nova OS</button>
+
+            <div class="hero-acoes">
+
+                <a class="btn btn-outline" href="./index.html">
+                   ← Voltar
+              </a>
+
+                <button
+                    class="btn btn-primary"
+                    type="button"
+                    id="btnNovaOS"
+                >
+                    ＋ Nova OS
+                </button>
+
             </div>
+
         </section>
+
 
         <!-- INDICADORES -->
 
-        <section class="stats stats-central" aria-label="Resumo da congregação">
+        <section
+            class="stats stats-central"
+            aria-label="Resumo da congregação"
+        >
+
             <article class="stat-card">
                 <span>Total de OS</span>
                 <strong id="totalOS">0</strong>
             </article>
+
             <article class="stat-card">
                 <span>Concluídas</span>
                 <strong id="concluidas">0</strong>
             </article>
+
             <article class="stat-card">
                 <span>Pendentes</span>
                 <strong id="pendentes">0</strong>
             </article>
+
             <article class="stat-card">
                 <span>Em andamento</span>
                 <strong id="andamento">0</strong>
             </article>
+
         </section>
 
-        <!-- FILTRO + LISTA -->
 
-        <section class="panel" style="background:#fff;border:1px solid #dfe5ea;border-radius:14px;padding:16px">
-            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-                <h3 style="margin:0">Ordens de serviço</h3>
-                <label class="search" style="margin:0;min-width:240px;flex:1;max-width:380px">
+        <!-- ORDENS DE SERVIÇO -->
+
+        <section class="panel painel-lista-os">
+
+            <div class="lista-os-header">
+
+                <div>
+                    <p class="eyebrow">GERENCIAMENTO</p>
+                    <h3>Ordens de serviço</h3>
+                </div>
+
+                <label class="search">
+
                     <span aria-hidden="true">⌕</span>
-                    <input type="search" id="buscaOS" placeholder="Buscar OS..." autocomplete="off" aria-label="Buscar OS">
+
+                    <input
+                        type="search"
+                        id="busca"
+                        placeholder="Buscar ordem de serviço..."
+                        autocomplete="off"
+                        aria-label="Buscar ordem de serviço"
+                    >
+
                 </label>
-                <select id="filtroStatus" aria-label="Filtrar por status" style="padding:10px;border:1px solid #dfe5ea;border-radius:10px">
-                    <option value="">Todos os status</option>
-                    <option value="pendente">Pendente</option>
-                    <option value="andamento">Em andamento</option>
-                    <option value="concluida">Concluída</option>
-                </select>
+
             </div>
 
-            <div id="listaOS" aria-live="polite" style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
-                <!-- Gerado pelo JS -->
+
+            <!-- FILTROS -->
+
+            <div class="filtros-os">
+
+                <select id="filtroStatus" aria-label="Filtrar por status">
+                    <option value="">Todos os status</option>
+                    <option value="ABERTA">Aberta</option>
+                    <option value="EM ANDAMENTO">Em andamento</option>
+                    <option value="CONCLUÍDA">Concluída</option>
+                    <option value="ATRASADA">Atrasada</option>
+                    <option value="N/OK">N/OK</option>
+                </select>
+
+                <select
+                    id="filtroResponsavel"
+                    aria-label="Filtrar por responsável"
+                >
+                    <option value="">Todos os responsáveis</option>
+                </select>
+
+                <select
+                    id="filtroConclusao"
+                    aria-label="Filtrar por conclusão"
+                >
+                    <option value="">Todas as conclusões</option>
+                    <option value="SIM">Concluídas</option>
+                    <option value="NÃO">Não concluídas</option>
+                </select>
+
             </div>
+
+
+            <!-- AÇÕES DA TABELA -->
+
+            <div class="lista-os-toolbar">
+
+                <span
+                    id="contadorLista"
+                    class="muted small"
+                    aria-live="polite"
+                >
+                    0 registros
+                </span>
+
+                <div class="lista-os-acoes">
+
+                    <button
+                        type="button"
+                        class="btn btn-outline"
+                        id="btnExportar"
+                    >
+                        ↓ Exportar CSV
+                    </button>
+
+                    <a
+                        href="./impressao.html"
+                        class="btn btn-primary"
+                        id="btnImprimir"
+                             >
+                           Imprimir
+                    </a>
+                </div>
+
+            </div>
+
+
+            <!-- TABELA -->
+
+            <div class="table-wrapper">
+
+                <table class="tabela-os">
+
+                    <thead>
+                        <tr>
+                            <th>Nº OS</th>
+                            <th>Abertura</th>
+                            <th>Descrição / atividade</th>
+                            <th>Responsável</th>
+                            <th>Concluída</th>
+                            <th>Status</th>
+                            <th>Conclusão</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tabelaOS">
+                        <!-- Preenchido pelo script.js -->
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- ESTADO VAZIO -->
+
+            <div
+                id="vazio"
+                class="empty"
+                hidden
+            >
+                Nenhuma ordem de serviço encontrada.
+            </div>
+
         </section>
+
+
+        <!-- RODAPÉ -->
 
         <footer class="footer-note">
-            Painel central • Controle local de ordens de serviço
+            Painel central • Controle de manutenção das congregações
         </footer>
 
     </main>
 
-    <!-- MODAL NOVA OS -->
 
-    <dialog id="modalOS" class="modal-church" aria-labelledby="tituloModalOS">
-        <form id="formOS" method="dialog">
+    <!-- =================================================
+         MODAL DE ORDEM DE SERVIÇO
+    ================================================== -->
+
+    <dialog
+        id="modalOS"
+        class="modal-church"
+        aria-labelledby="tituloModal"
+    >
+
+        <form id="formOS">
+
+            <!-- CABEÇALHO -->
+
             <div class="modal-header">
+
                 <div>
-                    <p class="eyebrow">NOVA ORDEM DE SERVIÇO</p>
-                    <h3 id="tituloModalOS">Nova OS</h3>
-                    <p class="muted small">Descreva o serviço que precisa ser feito.</p>
+
+                    <p class="eyebrow">
+                        CONTROLE DE MANUTENÇÃO
+                    </p>
+
+                    <h3 id="tituloModal">
+                        Nova ordem de serviço
+                    </h3>
+
+                    <p class="muted small">
+                        Preencha as informações da ordem de serviço.
+                    </p>
+
                 </div>
-                <button class="icon-btn" type="button" id="fecharModalOS" aria-label="Fechar">×</button>
+
+                <button
+                    class="icon-btn"
+                    type="button"
+                    id="fecharModal"
+                    aria-label="Fechar formulário"
+                >
+                    ×
+                </button>
+
             </div>
 
+
+            <!-- CAMPOS -->
+
             <div class="form-grid">
+
+                <input
+                    type="hidden"
+                    id="osId"
+                >
+
+                <label>
+                    Número da OS
+
+                    <input
+                        type="number"
+                        id="numero"
+                        min="1"
+                        required
+                    >
+                </label>
+
+
+                <label>
+                    Data de abertura
+
+                    <input
+                        type="date"
+                        id="dataAbertura"
+                        required
+                    >
+                </label>
+
+
                 <label class="full">
-                    Título / serviço
-                    <input type="text" id="tituloOS" maxlength="100" placeholder="Ex.: Troca de lâmpadas do salão" required>
+                    Descrição / atividade
+
+                    <input
+                        type="text"
+                        id="descricao"
+                        maxlength="200"
+                        placeholder="Ex.: Manutenção elétrica do salão"
+                        required
+                    >
                 </label>
 
-                <label>
-                    Tipo
-                    <select id="tipoOS" style="padding:11px;border:1px solid #dfe5ea;border-radius:10px">
-                        <option value="Elétrica">Elétrica</option>
-                        <option value="Hidráulica">Hidráulica</option>
-                        <option value="Telhado">Telhado</option>
-                        <option value="Pintura">Pintura</option>
-                        <option value="Alvenaria">Alvenaria</option>
-                        <option value="Limpeza">Limpeza</option>
-                        <option value="Outros">Outros</option>
-                    </select>
-                </label>
-
-                <label>
-                    Prioridade
-                    <select id="prioridadeOS" style="padding:11px;border:1px solid #dfe5ea;border-radius:10px">
-                        <option value="Normal">Normal</option>
-                        <option value="Urgente">Urgente</option>
-                        <option value="Baixa">Baixa</option>
-                    </select>
-                </label>
 
                 <label class="full">
-                    Descrição / observações
-                    <input type="text" id="descricaoOS" maxlength="200" placeholder="Ex.: 3 lâmpadas queimadas no lado direito">
+                    Observações
+
+                    <textarea
+                        id="observacoes"
+                        rows="3"
+                        placeholder="Informações adicionais sobre o serviço..."
+                    ></textarea>
                 </label>
 
-                <label>
-                    Data prevista
-                    <input type="date" id="dataOS">
-                </label>
 
                 <label>
                     Responsável
-                    <input type="text" id="responsavelOS" maxlength="60" placeholder="Ex.: Irmão João">
+
+                    <select id="responsavel" required>
+                        <option value="">Selecione o responsável</option>
+                    </select>
                 </label>
+
+
+                <label>
+                    Status
+
+                    <select id="status" required>
+                        <option value="ABERTA">Aberta</option>
+                        <option value="EM ANDAMENTO">Em andamento</option>
+                        <option value="CONCLUÍDA">Concluída</option>
+                        <option value="ATRASADA">Atrasada</option>
+                        <option value="N/OK">N/OK</option>
+                    </select>
+                </label>
+
+
+                <label>
+                    Concluída?
+
+                    <select id="concluida" required>
+                        <option value="NÃO">Não</option>
+                        <option value="SIM">Sim</option>
+                    </select>
+                </label>
+
+
+                <label>
+                    Data de conclusão
+
+                    <input
+                        type="date"
+                        id="dataConclusao"
+                    >
+                </label>
+
             </div>
+
+
+            <!-- BOTÕES -->
 
             <div class="modal-footer">
-                <button class="btn btn-outline" type="button" id="cancelarOS">Cancelar</button>
-                <button class="btn btn-primary" type="submit" id="salvarOS">Salvar OS</button>
+
+                <button
+                    class="btn btn-outline"
+                    type="button"
+                    id="cancelar"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                    id="salvarOS"
+                >
+                    Salvar ordem de serviço
+                </button>
+
             </div>
+
         </form>
+
     </dialog>
-
-<script>
-const KEY = 'ccb_manutencao_v1';
-const params = new URLSearchParams(location.search);
-const igrejaId = Number(params.get('id'));
-let igrejas = JSON.parse(localStorage.getItem(KEY) || '[]');
-let igreja = igrejas.find(i => i.id === igrejaId);
-let busca = '', filtroStatus = '';
-
-const $ = id => document.getElementById(id);
-const salvar = () => localStorage.setItem(KEY, JSON.stringify(igrejas));
-
-if(!igreja){
-  $('nomeIgreja').textContent = 'Congregação não encontrada';
-  $('infoIgreja').textContent = 'Volte para o painel e selecione uma congregação.';
-  $('btnNovaOS').disabled = true;
-} else {
-  $('nomeIgreja').textContent = igreja.nome;
-  $('infoIgreja').textContent = (igreja.codigo || '') + ' • ' + (igreja.descricao || '');
-  igreja.os = igreja.os || [];
-}
-
-function render(){
-  if(!igreja) return;
-  const lista = igreja.os.filter(o => {
-    const okBusca = (o.titulo + ' ' + (o.descricao||'')).toLowerCase().includes(busca);
-    const okStatus = !filtroStatus || o.status === filtroStatus;
-    return okBusca && okStatus;
-  });
-  $('totalOS').textContent = igreja.os.length;
-  $('concluidas').textContent = igreja.os.filter(o => o.status === 'concluida').length;
-  $('pendentes').textContent = igreja.os.filter(o => o.status === 'pendente').length;
-  $('andamento').textContent = igreja.os.filter(o => o.status === 'andamento').length;
-
-  $('listaOS').innerHTML = lista.length ? '' : '<div class="empty">Nenhuma OS encontrada.<br>Clique em + Nova OS.</div>';
-  lista.forEach(o => {
-    const div = document.createElement('div');
-    div.style.cssText = 'border:1px solid #dfe5ea;border-radius:12px;padding:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap';
-    const cor = o.status === 'concluida' ? '#1e7d4d' : o.status === 'andamento' ? '#c97a0a' : '#18364b';
-    const label = o.status === 'concluida' ? 'Concluída' : o.status === 'andamento' ? 'Em andamento' : 'Pendente';
-    div.innerHTML = `
-      <div style="flex:1;min-width:220px">
-        <strong>${o.titulo}</strong><br>
-        <span style="font-size:13px;color:#6b7a86">${o.tipo} • ${o.prioridade} ${o.data ? '• ' + o.data.split('-').reverse().join('/') : ''} ${o.responsavel ? '• ' + o.responsavel : ''}</span><br>
-        <span style="font-size:13px">${o.descricao || ''}</span>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
-        <span class="chip" style="color:${cor}">${label}</span>
-        <select data-acao="status" data-id="${o.id}" style="padding:8px;border:1px solid #dfe5ea;border-radius:8px">
-          <option value="pendente" ${o.status==='pendente'?'selected':''}>Pendente</option>
-          <option value="andamento" ${o.status==='andamento'?'selected':''}>Em andamento</option>
-          <option value="concluida" ${o.status==='concluida'?'selected':''}>Concluída</option>
-        </select>
-        <button data-acao="excluir" data-id="${o.id}" style="border:0;background:none;color:#b3261e;cursor:pointer;font-size:13px">Excluir</button>
-      </div>`;
-    $('listaOS').appendChild(div);
-  });
-
-  // Ações da lista
-  document.querySelectorAll('[data-acao="status"]').forEach(sel => {
-    sel.onchange = e => {
-      const os = igreja.os.find(x => x.id === Number(sel.dataset.id));
-      if(os){ os.status = e.target.value; salvar(); render(); }
-    };
-  });
-  document.querySelectorAll('[data-acao="excluir"]').forEach(btn => {
-    btn.onclick = () => {
-      if(confirm('Excluir esta OS?')){
-        igreja.os = igreja.os.filter(x => x.id !== Number(btn.dataset.id));
-        salvar(); render();
-      }
-    };
-  });
-}
-
-$('buscaOS').oninput = e => { busca = e.target.value.toLowerCase(); render(); };
-$('filtroStatus').onchange = e => { filtroStatus = e.target.value; render(); };
-
-$('btnNovaOS').onclick = () => { $('formOS').reset(); $('modalOS').showModal(); };
-$('fecharModalOS').onclick = () => $('modalOS').close();
-$('cancelarOS').onclick = () => $('modalOS').close();
-
-$('formOS').onsubmit = e => {
-  e.preventDefault();
-  const titulo = $('tituloOS').value.trim();
-  if(!titulo || !igreja) return;
-  igreja.os.unshift({
-    id: Date.now(),
-    titulo,
-    tipo: $('tipoOS').value,
-    prioridade: $('prioridadeOS').value,
-    descricao: $('descricaoOS').value.trim(),
-    data: $('dataOS').value,
-    responsavel: $('responsavelOS').value.trim(),
-    status: 'pendente',
-    criadoEm: new Date().toISOString()
-  });
-  salvar(); $('modalOS').close(); render();
-};
-
-render();
-</script>
-
+   <script src="./igreja.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#18364b">
+    <meta name="description" content="Impressão de atas e relatórios do Controle de Manutenção CCB.">
+
+    <title>Impressão e Relatórios | Controle de Manutenção</title>
+
+    <link rel="stylesheet" href="./impressao.css">
+    <script src="./impressao.js" defer></script>
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="topbar-brand">
+            <div class="brand-icon">OS</div>
+            <div>
+                <h1>Controle de Manutenção</h1>
+                <span>Impressão e relatórios</span>
+            </div>
+        </div>
+
+        <a href="index.html" class="btn btn-light">
+            <span>←</span> Voltar ao painel
+        </a>
+    </header>
+
+    <main class="page-container">
+
+        <section class="page-heading">
+            <div>
+                <span class="eyebrow">DOCUMENTOS DO SISTEMA</span>
+                <h2>Impressão e relatórios</h2>
+                <p>Gere atas de manutenção preventiva e relatórios diários de ordens de serviço.</p>
+            </div>
+        </section>
+
+        <section class="config-card">
+
+            <div class="section-heading">
+                <div class="section-icon">▤</div>
+                <div>
+                    <h3>Configurar documento</h3>
+                    <p>Selecione as informações para gerar a impressão.</p>
+                </div>
+            </div>
+
+            <div class="form-grid">
+
+                <div class="form-group full">
+                    <label for="congregacao">Congregação</label>
+                    <select id="congregacao" required>
+                        <option value="">Carregando congregações...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipoDocumento">Tipo de documento</label>
+                    <select id="tipoDocumento">
+                        <option value="relatorio">Relatório diário de OS</option>
+                        <option value="ata">ATA de manutenção preventiva</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="grupoData">
+                    <label for="dataDocumento">Data do relatório</label>
+                    <input type="date" id="dataDocumento">
+                </div>
+
+                <div class="form-group hidden" id="grupoHorario">
+                    <label for="horarioAta">Horário da reunião</label>
+                    <input type="time" id="horarioAta">
+                </div>
+
+                <div class="form-group hidden" id="grupoMes">
+                    <label for="mesAta">Competência - mês</label>
+                    <select id="mesAta">
+                        <option value="">Selecione o mês</option>
+                        <option value="Janeiro">Janeiro</option>
+                        <option value="Fevereiro">Fevereiro</option>
+                        <option value="Março">Março</option>
+                        <option value="Abril">Abril</option>
+                        <option value="Maio">Maio</option>
+                        <option value="Junho">Junho</option>
+                        <option value="Julho">Julho</option>
+                        <option value="Agosto">Agosto</option>
+                        <option value="Setembro">Setembro</option>
+                        <option value="Outubro">Outubro</option>
+                        <option value="Novembro">Novembro</option>
+                        <option value="Dezembro">Dezembro</option>
+                    </select>
+                </div>
+
+                <div class="form-group hidden" id="grupoAno">
+                    <label for="anoAta">Ano</label>
+                    <input type="number" id="anoAta" min="2020" max="2100">
+                </div>
+
+                
+<!-- PARTICIPANTES DA REUNIÃO -->
+<div class="form-group full hidden" id="grupoParticipantes">
+
+    <div class="section-heading">
+        <div class="section-icon">👥</div>
+        <div>
+            <h3>Participantes da reunião</h3>
+            <p>Adicione os nomes e selecione a categoria de cada participante.</p>
+        </div>
+    </div>
+
+    <div id="listaParticipantes" class="lista-participantes">
+        <!-- Os participantes serão adicionados pelo JavaScript -->
+    </div>
+
+    <button type="button" class="btn btn-secondary" id="btnNovoParticipante">
+        <span>＋</span> Novo participante
+    </button>
+
+    <small class="form-hint">
+        Limites: 10 participantes, 3 nomes do Ministério e 1 encarregado de manutenção.
+    </small>
+
+</div>
+
+
+                    </div>
+                </div>
+
+                <!-- MINISTÉRIO -->
+                <div class="form-group full hidden" id="grupoMinisterio">
+
+                    <div class="section-heading">
+                        <div class="section-icon">✦</div>
+                        <div>
+                            <h3>Ministério</h3>
+                            <p>Cadastre até 3 nomes do Ministério.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label for="ministerio1">Ministério 1</label>
+                            <input type="text" id="ministerio1" placeholder="Nome completo">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ministerio2">Ministério 2</label>
+                            <input type="text" id="ministerio2" placeholder="Nome completo">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ministerio3">Ministério 3</label>
+                            <input type="text" id="ministerio3" placeholder="Nome completo">
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ENCARREGADO DE MANUTENÇÃO -->
+                <div class="form-group full hidden" id="grupoEncarregado">
+
+                    <div class="section-heading">
+                        <div class="section-icon">🔧</div>
+                        <div>
+                            <h3>Encarregado de manutenção</h3>
+                            <p>Informe o nome do encarregado responsável.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="encarregadoManutencao">Nome do encarregado</label>
+                        <input
+                            type="text"
+                            id="encarregadoManutencao"
+                            placeholder="Nome completo do encarregado">
+                    </div>
+
+                </div>
+
+                <!-- OBSERVAÇÕES -->
+                <div class="form-group full hidden" id="grupoObservacao">
+                    <label for="observacaoAta">Observações da reunião</label>
+                    <textarea id="observacaoAta" rows="3"
+                        placeholder="Digite as observações da reunião..."></textarea>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="btnLimpar">
+                    Limpar
+                </button>
+
+                <button type="button" class="btn btn-primary" id="btnGerar">
+                    <span>▤</span> Gerar documento
+                </button>
+
+                <button type="button" class="btn btn-print" id="btnImprimir" disabled>
+                    <span>⎙</span> Imprimir documento
+                </button>
+            </div>
+
+        </section>
+
+        <section class="preview-section">
+
+            <div class="preview-heading">
+                <div>
+                    <span class="eyebrow">VISUALIZAÇÃO</span>
+                    <h3>Pré-visualização do documento</h3>
+                </div>
+
+                <span class="preview-label">Formato A4</span>
+            </div>
+
+            <div id="mensagemInicial" class="empty-preview">
+                <div class="empty-icon">▤</div>
+                <h3>Nenhum documento gerado</h3>
+                <p>Selecione a congregação e as informações acima. Depois clique em "Gerar documento".</p>
+            </div>
+
+            <div id="areaImpressao" class="print-area" hidden></div>
+
+        </section>
+
+    </main>
+
+    <footer class="page-footer">
+        <span>Controle de Manutenção CCB</span>
+        <span>Sistema de gerenciamento de manutenção</span>
+    </footer>
+
+</body>
+</html>
